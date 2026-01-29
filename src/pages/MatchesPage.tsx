@@ -9,38 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { api } from '@/lib/api';
+// import { api } from '@/lib/api';
 import { useAuth } from '@/auth/AuthProvider';
+import { matchesApi, type Match } from '@/lib/matches';
 
-
-type Match = {
-  id: string;
-  match_type: string;
-  status: string;
-  stake_cents: number;
-  total_pot_cents: number;
-  best_of: number;
-  created_by: string;
-  accepted_by: string | null;
-  winner_id: string | null;
-  started_at: string | null;
-  completed_at: string | null;
-  created_at: string;
-  participants: Array<{
-    user_id: string;
-    username?: string;
-  }>;
-};
-
-type MatchListResponse = {
-  data: Match[];
-  meta: {
-    pagination: {
-      cursor: string | null;
-      has_more: boolean;
-    };
-  };
-};
 
 const getStatusBadge = (status: string): "default" | "secondary" | "outline" | "destructive" => {
   const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -66,27 +38,23 @@ export default function MatchesPage() {
   const queryClient = useQueryClient();
   const [createMatchOpen, setCreateMatchOpen] = useState(false);
   const [matchType, setMatchType] = useState('QUICK_DUEL');
-  const [stakeCents, setStakeCents] = useState(1000);
+  const [stakeCents, setStakeCents] = useState(0);
   const [bestOf, setBestOf] = useState(3);
 
   // Fetch user's matches
-  const { data: matchesData, isLoading } = useQuery<MatchListResponse>({
+  const { data: matchesWrapper, isLoading } = useQuery({
     queryKey: ['my-matches'],
-    queryFn: async () => {
-      const response = await api.get('/matches/me', {
-        params: { limit: 50 }
-      });
-      return response.data;
-    },
+    queryFn: () => matchesApi.getUserMatches(user?.id || ''),
     enabled: !!user,
     refetchInterval: 5000,
   });
 
+  const matches = matchesWrapper?.data || [];
+
   // Create match mutation
   const createMatchMutation = useMutation({
     mutationFn: async (data: { match_type: string; stake_cents: number; best_of: number }) => {
-      const response = await api.post('/matches', data);
-      return response.data;
+      return await matchesApi.createMatch(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-matches'] });
@@ -98,8 +66,7 @@ export default function MatchesPage() {
   // Start match mutation
   const startMatchMutation = useMutation({
     mutationFn: async (matchId: string) => {
-      const response = await api.post(`/matches/${matchId}/start`, {});
-      return response.data;
+      return await matchesApi.startMatch(matchId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-matches'] });
@@ -107,19 +74,19 @@ export default function MatchesPage() {
   });
 
   // Complete match mutation
-  // const completeMatchMutation = useMutation({
-  //   mutationFn: async ({ matchId, winnerId, gameResults }: { matchId: string; winnerId: string; gameResults: Array<{ game_number: number; winner_id: string }> }) => {
-  //     const response = await api.post(`/matches/${matchId}/complete`, {
-  //       winner_id: winnerId,
-  //       game_results: gameResults,
-  //     });
-  //     return response.data;
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ['my-matches'] });
-  //     queryClient.invalidateQueries({ queryKey: ['rankings'] });
-  //   },
-  // });
+  const completeMatchMutation = useMutation({
+    mutationFn: async (matchId: string) => {
+      return await matchesApi.completeMatch(matchId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-matches'] });
+      // alert("Victory claimed! match completed."); // Optional: silent update is smoother
+    },
+    onError: (err) => {
+      console.error("Failed to complete match", err);
+      alert("Failed to claim victory. Ensure the match is in progress.");
+    }
+  });
 
   const handleCreateMatch = () => {
     if (!user) return;
@@ -141,8 +108,9 @@ export default function MatchesPage() {
 
   const getMatchTitle = (match: Match) => {
     if (match.match_type === 'DIRECT_CHALLENGE') {
-      const opponent = match.participants.find(p => p.user_id !== user?.id);
-      return `vs ${opponent?.username || 'Opponent'}`;
+      // Logic for opponent name might need adjustment based on how we fetch profiles
+      // For now, simple fallback
+      return `Direct Challenge`;
     }
     return `${match.match_type.replace('_', ' ')} - ${formatCurrency(match.stake_cents)}`;
   };
@@ -152,11 +120,12 @@ export default function MatchesPage() {
     if (match.status === 'COMPLETED' && match.winner_id === user?.id) {
       parts.push('Won');
     } else if (match.status === 'COMPLETED') {
+      // If completed but not won by self, assume lost for now (draws not handled yet)
       parts.push('Lost');
     }
-    if (match.completed_at) {
-      parts.push(formatDate(match.completed_at));
-    }
+    // if (match.completed_at) {
+    //   parts.push(formatDate(match.completed_at));
+    // }
     return parts.join(' • ');
   };
 
@@ -242,9 +211,9 @@ export default function MatchesPage() {
 
       {isLoading ? (
         <div className="text-center py-12 text-gray-400">Loading matches...</div>
-      ) : matchesData?.data && matchesData.data.length > 0 ? (
+      ) : matches && matches.length > 0 ? (
         <div className="grid gap-4">
-          {matchesData.data.map((match) => (
+          {matches.map((match: Match) => (
             <Card key={match.id} className="bg-white/5 border-white/10">
               <CardHeader className="space-y-1">
                 <div className="flex items-center justify-between gap-3">
@@ -291,11 +260,12 @@ export default function MatchesPage() {
                     <Button
                       size="sm"
                       onClick={() => {
-                        // TODO: Open completion dialog
-                        navigate(`/app/matches/${match.id}/complete`);
+                        if (confirm("Are you sure you want to claim victory? This will end the match and update rankings.")) {
+                          completeMatchMutation.mutate(match.id);
+                        }
                       }}
                     >
-                      Complete
+                      Claim Victory
                     </Button>
                   )}
                 </div>

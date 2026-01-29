@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Swords, Trophy, Zap, Users, Clock, Plus, Play } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,35 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { api } from '@/lib/api';
+// import { api } from '@/lib/api'; // user: Removed axios api
 import { useAuth } from '@/auth/AuthProvider';
-
-
-type Match = {
-  id: string;
-  match_type: string;
-  status: string;
-  stake_cents: number;
-  total_pot_cents: number;
-  best_of: number;
-  created_by: string;
-  accepted_by: string | null;
-  created_at: string;
-  participants: Array<{
-    user_id: string;
-    username?: string;
-  }>;
-};
-
-type MatchListResponse = {
-  data: Match[];
-  meta: {
-    pagination: {
-      cursor: string | null;
-      has_more: boolean;
-    };
-  };
-};
+import { matchesApi, type Match } from '@/lib/matches';
 
 const stats = [
   { name: 'Active Players', value: '2,543', icon: Users, change: '+12%', changeType: 'positive' },
@@ -52,44 +26,52 @@ export default function DiscoverPage() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [createMatchOpen, setCreateMatchOpen] = useState(false);
+  // Match form state
   const [matchType, setMatchType] = useState('QUICK_DUEL');
-  const [stakeCents, setStakeCents] = useState(1000); // $10.00
+  const [stakeCents, setStakeCents] = useState(0); // Default to 0 / free for now or user input
   const [bestOf, setBestOf] = useState(3);
 
-  // Fetch matches
-  const { data: matchesData, isLoading: matchesLoading } = useQuery<MatchListResponse>({
+  // Fetch matches (Real Supabase Data)
+  const { data: matchesWrapper, isLoading: matchesLoading } = useQuery({
     queryKey: ['matches', 'CREATED'],
-    queryFn: async () => {
-      const response = await api.get('/matches', {
-        params: { status: 'CREATED', limit: 20 }
-      });
-      return response.data;
-    },
-    refetchInterval: 5000, // Poll every 5 seconds
+    queryFn: () => matchesApi.getOpenMatches(),
+    refetchInterval: 5000,
   });
+
+  const matches = matchesWrapper?.data || [];
 
   // Create match mutation
   const createMatchMutation = useMutation({
     mutationFn: async (data: { match_type: string; stake_cents: number; best_of: number }) => {
-      const response = await api.post('/matches', data);
-      return response.data;
+      return await matchesApi.createMatch(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
       setCreateMatchOpen(false);
     },
+    onError: (err) => {
+      console.error("Failed to create match", err);
+      // @ts-ignore
+      alert(`Failed to create match: ${err.message || 'Unknown error'}`);
+    }
   });
 
   // Accept match mutation
   const acceptMatchMutation = useMutation({
     mutationFn: async (matchId: string) => {
-      const response = await api.post(`/matches/${matchId}/accept`, {});
-      return response.data;
+      return await matchesApi.acceptMatch(matchId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
       queryClient.invalidateQueries({ queryKey: ['my-matches'] });
+      // Redirect to My Matches page so they can see it
+      // @ts-ignore
+      window.location.href = '/app/matches';
     },
+    onError: (err) => {
+      console.error("Failed to accept match", err);
+      alert("Failed to accept match. Make sure you are logged in.");
+    }
   });
 
   const handleCreateMatch = () => {
@@ -102,6 +84,7 @@ export default function DiscoverPage() {
   };
 
   const handleAcceptMatch = (matchId: string) => {
+    if (!user) return;
     acceptMatchMutation.mutate(matchId);
   };
 
@@ -274,10 +257,10 @@ export default function DiscoverPage() {
           <TabsContent value="open" className="mt-6">
             {matchesLoading ? (
               <div className="text-center py-12 text-gray-400">Loading matches...</div>
-            ) : matchesData?.data && matchesData.data.length > 0 ? (
+            ) : matches && matches.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {matchesData.data
-                  .filter(m => m.created_by !== user?.id) // Don't show own matches
+                {matches
+                  // .filter((m: Match) => m.created_by !== user?.id) // user: Show own matches for now
                   .map((match) => (
                     <motion.div
                       key={match.id}
