@@ -1,0 +1,43 @@
+# FastAPI and ASGI
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy[asyncio]==2.0.23
+asyncpg==0.29.0
+psycopg2-binary==2.9.9  # For Alembic migrations (synchronous driver)
+alembic==1.12.1
+
+# Redis (hiredis is optional - provides faster Redis performance but requires C++ compiler)
+redis==5.0.1
+# hiredis==2.2.3  # Optional: Uncomment if you have C++ Build Tools installed
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+argon2-cffi>=23.1.0
+bcrypt==4.1.2
+
+# Validation (flexible versions for Python 3.13 compatibility)
+pydantic>=2.8.0,<3.0.0
+pydantic-settings>=2.5.0
+email-validator==2.1.0
+
+# HTTP Client
+httpx==0.25.2
+requests==2.31.0  # For health checks
+# aiohttp==3.9.1  # Not used in codebase - removed
+
+# Payment Gateway
+stripe>=7.0.0
+
+# Utilities
+python-dotenv==1.0.0
+python-dateutil==2.8.2
+
+# Logging
+structlog==23.2.0
+
+# Rate Limiting
+slowapi==0.1.9
