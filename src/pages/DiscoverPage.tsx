@@ -386,25 +386,7 @@ export default function DiscoverPage() {
         </Tabs>
       </div>
 
-      <div className="mt-12 p-4 border-t border-white/10 text-xs text-gray-500 font-mono">
-        <p>Debug Info (v1.3 - Build Fixed):</p>
-        <p>User ID: {user?.id || 'Not Logged In'}</p>
-        <p>Supabase: {import.meta.env.VITE_SUPABASE_URL ? 'Defined' : 'Missing'}</p>
-        <button
-          onClick={async () => {
-            try {
-              alert('Testing connection...');
-              const res = await matchesApi.getOpenMatches();
-              alert(`Connection OK! Found ${res.data?.length} matches.`);
-            } catch (e: any) {
-              alert(`Connection Failed: ${e.message}`);
-            }
-          }}
-          className="mt-2 text-pink-500 underline"
-        >
-          Test Connection
-        </button>
-      </div>
+
     </PageLayout>
   );
 }
