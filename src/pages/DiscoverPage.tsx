@@ -387,12 +387,13 @@ export default function DiscoverPage() {
       </div>
 
       <div className="mt-12 p-4 border-t border-white/10 text-xs text-gray-500 font-mono">
-        <p>Debug Info (v1.1):</p>
+        <p>Debug Info (v1.2):</p>
         <p>User ID: {user?.id || 'Not Logged In'}</p>
-        <p>Supabase: {import.meta.env.VITE_SUPABASE_URL?.slice(0, 15)}...</p>
+        <p>Supabase: {import.meta.env.VITE_SUPABASE_URL ? 'Defined' : 'Missing'}</p>
         <button
           onClick={async () => {
             try {
+              alert('Testing connection...');
               const res = await matchesApi.getOpenMatches();
               alert(`Connection OK! Found ${res.data?.length} matches.`);
             } catch (e: any) {
