@@ -158,14 +158,9 @@ export default function RegisterPage() {
                   transition={{ delay: 0.5 }}
                   className="space-y-2"
                 >
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-purple-200/90">
-                      Password <span className="text-xs text-purple-200/60">(min 8 characters)</span>
-                    </Label>
-                    <Link to="/forgot-password" className="text-xs text-pink-400 hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <Label htmlFor="password" className="text-purple-200/90">
+                    Password <span className="text-xs text-purple-200/60">(min 8 characters)</span>
+                  </Label>
                   <Input
                     id="password"
                     type="password"
