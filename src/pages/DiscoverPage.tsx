@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Swords, Trophy, Zap, Users, Clock, Plus, Play } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { PageLayout } from '@/components/layout/PageLayout';
 // import { api } from '@/lib/api'; // user: Removed axios api
 import { useAuth } from '@/auth/AuthProvider';
-import { matchesApi, type Match } from '@/lib/matches';
+import { matchesApi } from '@/lib/matches';
 
 const stats = [
   { name: 'Active Players', value: '2,543', icon: Users, change: '+12%', changeType: 'positive' },
@@ -387,7 +387,7 @@ export default function DiscoverPage() {
       </div>
 
       <div className="mt-12 p-4 border-t border-white/10 text-xs text-gray-500 font-mono">
-        <p>Debug Info (v1.2):</p>
+        <p>Debug Info (v1.3 - Build Fixed):</p>
         <p>User ID: {user?.id || 'Not Logged In'}</p>
         <p>Supabase: {import.meta.env.VITE_SUPABASE_URL ? 'Defined' : 'Missing'}</p>
         <button
