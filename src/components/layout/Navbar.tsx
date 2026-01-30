@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe } from 'lucide-react';
+import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe, User, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useAuth as useAuthContext } from '@/auth/AuthProvider';
@@ -11,6 +11,8 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 type NavItem = {
@@ -248,21 +250,46 @@ export function Navbar() {
                         </DropdownMenu>
                     )}
 
-                    {/* User Avatar (If logged in) or Login Button (If not) */}
+                    {/* User Profile Dropdown */}
                     {user && profile ? (
-                        <div className="relative">
-                            <button
-                                onClick={() => navigate('/app/profile')}
-                                className="flex items-center rounded-full focus:outline-none ring-2 ring-transparent hover:ring-purple-500/50 transition-all"
-                            >
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={profile.avatar_url} alt={profile.display_name || profile.username} />
-                                    <AvatarFallback className="bg-purple-600 text-xs">
-                                        {(profile.display_name || profile.username).split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </button>
-                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    className="flex items-center rounded-full focus:outline-none ring-2 ring-transparent hover:ring-purple-500/50 transition-all transition-transform active:scale-95"
+                                >
+                                    <Avatar className="h-8 w-8 border border-white/10">
+                                        <AvatarImage src={profile.avatar_url} alt={profile.display_name || profile.username} />
+                                        <AvatarFallback className="bg-purple-600 text-xs text-white">
+                                            {(profile.display_name || profile.username).split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 bg-gray-900/95 backdrop-blur-md border-white/10 text-white">
+                                <DropdownMenuLabel className="font-normal">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-medium leading-none">{profile.display_name || profile.username}</p>
+                                        <p className="text-xs leading-none text-gray-400">{user.email}</p>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-white/5" />
+                                <DropdownMenuItem
+                                    onClick={() => navigate('/app/profile')}
+                                    className="hover:bg-white/5 cursor-pointer flex items-center gap-2"
+                                >
+                                    <User className="h-4 w-4 text-purple-400" />
+                                    <span>{t('nav.profile')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-white/5" />
+                                <DropdownMenuItem
+                                    onClick={() => signOut()}
+                                    className="hover:bg-red-500/10 text-red-400 cursor-pointer flex items-center gap-2"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    <span>{t('nav.signOut')}</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     ) : (
                         <div className="flex items-center gap-4">
                             <button onClick={() => navigate('/login')} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
