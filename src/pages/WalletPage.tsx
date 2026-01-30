@@ -38,7 +38,7 @@ export default function WalletPage() {
     }, [user]);
 
     const [depositAmount, setDepositAmount] = useState<string>('25');
-    const [selectedMethod, setSelectedMethod] = useState<'card' | 'paypal' | 'crypto'>('card');
+    const [selectedMethod, setSelectedMethod] = useState<'card' | 'paypal' | 'razorpay' | 'crypto'>('card');
 
     const presetAmounts = [10, 25, 50, 100];
 
@@ -137,8 +137,8 @@ export default function WalletPage() {
                             {/* Method Selector */}
                             <div className="space-y-2">
                                 <label className="text-xs text-gray-400">Payment Method</label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {['card', 'paypal', 'crypto'].map((m) => (
+                                <div className="grid grid-cols-4 gap-2">
+                                    {['card', 'paypal', 'razorpay', 'crypto'].map((m) => (
                                         <button
                                             key={m}
                                             onClick={() => setSelectedMethod(m as any)}
@@ -150,7 +150,8 @@ export default function WalletPage() {
                                             <img
                                                 src={m === 'card' ? 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg' :
                                                     m === 'paypal' ? 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg' :
-                                                        'https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg'}
+                                                        m === 'razorpay' ? 'https://razorpay.com/favicon.png' :
+                                                            'https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg'}
                                                 className="h-4 opacity-70 grayscale contrast-125"
                                                 alt={m}
                                             />
@@ -166,7 +167,7 @@ export default function WalletPage() {
                                 </p>
                                 <PaymentProcessors
                                     amount={Math.round(parseFloat(depositAmount || '0') * 100)}
-                                    method={selectedMethod === 'crypto' ? 'paypal' : selectedMethod as 'paypal' | 'card'}
+                                    method={selectedMethod === 'crypto' ? 'paypal' : selectedMethod as 'paypal' | 'card' | 'razorpay'}
                                     onSuccess={handlePaymentSuccess}
                                     onError={handlePaymentError}
                                 />

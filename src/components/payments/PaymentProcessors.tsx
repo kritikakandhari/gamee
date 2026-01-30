@@ -5,7 +5,7 @@ interface PaymentProcessorsProps {
     amount: number; // in cents
     onSuccess: (details: any) => void;
     onError: (error: any) => void;
-    method: 'paypal' | 'card';
+    method: 'paypal' | 'card' | 'razorpay';
 }
 
 export const PaymentProcessors: React.FC<PaymentProcessorsProps> = ({
@@ -74,6 +74,46 @@ export const PaymentProcessors: React.FC<PaymentProcessorsProps> = ({
 
                 <p className="text-[10px] text-gray-500 text-center">
                     Powered by Stripe. PCI-DSS compliant.
+                </p>
+            </div>
+        );
+    }
+
+    if (method === 'razorpay') {
+        const handleRazorpay = () => {
+            const options = {
+                key: (import.meta as any).env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+                amount: amount, // in smallest currency unit (cents/paise)
+                currency: 'USD',
+                name: 'FGC Money Match',
+                description: 'Wallet Deposit',
+                handler: function (response: any) {
+                    onSuccess(response);
+                },
+                modal: {
+                    ondismiss: function () {
+                        onError({ message: 'Payment cancelled' });
+                    }
+                },
+                theme: {
+                    color: '#A855F7'
+                }
+            };
+            const rzp = new (window as any).Razorpay(options);
+            rzp.open();
+        };
+
+        return (
+            <div className="w-full space-y-4 p-4 bg-white/5 rounded-lg border border-white/10">
+                <Button
+                    className="w-full bg-[#3395FF] hover:bg-[#2d84e6] text-white font-bold h-12 flex items-center justify-center gap-2"
+                    onClick={handleRazorpay}
+                >
+                    <img src="https://razorpay.com/favicon.png" className="h-5 w-5" alt="Razorpay" />
+                    Pay with Razorpay
+                </Button>
+                <p className="text-[10px] text-gray-500 text-center">
+                    Secure local & international payments via Razorpay.
                 </p>
             </div>
         );
