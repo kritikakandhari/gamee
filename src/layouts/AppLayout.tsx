@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, Swords, Trophy, User, Home, ChevronDown, X } from 'lucide-react';
+import { LegalFooter } from '@/components/layout/LegalFooter';
+import { Home, Swords, Trophy, User, LogOut, Menu, X, Wallet, ChevronDown, Brain, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -20,6 +21,8 @@ const navItems: NavItem[] = [
   { to: '/app/discover', label: 'Discover', icon: Home, color: 'text-purple-400' },
   { to: '/app/matches', label: 'Matches', icon: Swords, color: 'text-blue-400' },
   { to: '/app/leaderboard', label: 'Leaderboard', icon: Trophy, color: 'text-yellow-400' },
+  { to: '/app/insights', label: 'Game Insights', icon: Brain, color: 'text-pink-500' },
+  { to: '/app/wallet', label: 'Wallet', icon: Wallet, color: 'text-green-400' }, // Added Wallet item
   { to: '/app/profile', label: 'Profile', icon: User, color: 'text-pink-400' },
 ];
 
@@ -112,8 +115,53 @@ function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; i
           </NavLink>
         );
       })}
+
+      {/* Admin Link - Conditional */}
+      {/* Accessing user/isAdmin from parent usually, but here we can't easily.
+          Wait, NavLinks is a child component. We should pass isAdmin prop or useHook.
+          But NavLinks does not have useAuth calls inside it.
+          Let's rewrite NavLinks to use useAuthContext.
+      */}
+      <NavLinksAdminExtension isMobile={isMobile} onNavigate={onNavigate} />
     </nav>
   );
+}
+
+// Separate component to hook into auth context without prop drilling too much if I don't want to change NavLinks signature extensively
+function NavLinksAdminExtension({ isMobile, onNavigate }: { isMobile: boolean, onNavigate?: () => void }) {
+  const { isAdmin } = useAuthContext();
+  const location = useLocation();
+  const isActive = location.pathname.startsWith('/app/admin');
+
+  if (!isAdmin) return null;
+
+  return (
+    <NavLink
+      to="/app/admin"
+      onClick={onNavigate}
+      className={cn(
+        'flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+        'hover:bg-red-500/10',
+        isActive
+          ? 'text-red-400'
+          : 'text-gray-400 hover:text-red-400',
+        isMobile ? 'w-full' : 'flex-col py-1.5 px-3'
+      )}
+    >
+      <div className={cn(
+        'p-1.5 rounded-lg',
+        isActive ? 'bg-red-500/10' : 'bg-transparent'
+      )}>
+        <ShieldAlert className={cn('h-5 w-5', isActive ? 'text-red-400' : 'text-gray-400 hover:text-red-400')} />
+      </div>
+      <span className={cn(
+        'text-xs mt-1',
+        isActive ? 'text-red-400' : 'text-gray-400 hover:text-red-400'
+      )}>
+        Admin
+      </span>
+    </NavLink>
+  )
 }
 
 
@@ -140,11 +188,10 @@ function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/80 text-white">
-      {/* Animated Background */}
-      <div className="fixed inset-0 -z-10 bg-gray-900">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-600/5 via-transparent to-transparent"></div>
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {/* Animated Background - simplified */}
+      <div className="fixed inset-0 -z-10 bg-background">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent"></div>
         <FloatingParticles />
       </div>
 

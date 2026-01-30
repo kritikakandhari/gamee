@@ -2,10 +2,14 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
 import LandingPage from '@/pages/LandingPage'
 import RequireAuth from '@/auth/RequireAuth'
+import RequireAdmin from '@/auth/RequireAdmin'
 import DiscoverPage from '@/pages/DiscoverPage'
 import MatchesPage from '@/pages/MatchesPage'
 import LeaderboardPage from '@/pages/LeaderboardPage'
 import ProfilePage from '@/pages/ProfilePage'
+import WalletPage from '@/pages/WalletPage'
+import AdminDashboard from '@/pages/AdminDashboard'
+import InsightsPage from '@/pages/InsightsPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
@@ -34,12 +38,29 @@ function App() {
           }
         />
         <Route path="leaderboard" element={<LeaderboardPage />} />
+        <Route path="insights" element={<InsightsPage />} />
         <Route
           path="profile"
           element={
             <RequireAuth>
               <ProfilePage />
             </RequireAuth>
+          }
+        />
+        <Route
+          path="wallet"
+          element={
+            <RequireAuth>
+              <WalletPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="admin"
+          element={
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
           }
         />
       </Route>

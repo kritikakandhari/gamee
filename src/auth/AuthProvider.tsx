@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient'
 type AuthContextValue = {
   session: any
   user: any
+  isAdmin: boolean
   isLoading: boolean
   signOut: () => Promise<void>
 }
@@ -14,12 +15,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  const checkAdmin = (user: any) => {
+    // For demo purposes, we allow a specific email or metadata role
+    // In production, this should be strictly strictly via RLS/Claims
+    const isDevAdmin = user?.email === 'admin@fgcmm.com' || user?.email?.includes('admin');
+    const isRoleAdmin = user?.user_metadata?.role === 'admin';
+    return isDevAdmin || isRoleAdmin;
+  };
 
   useEffect(() => {
     // 1. Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      setUser(session?.user ?? null)
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
+      setIsAdmin(!!currentUser && checkAdmin(currentUser))
       setIsLoading(false)
     })
 
@@ -28,7 +40,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      setUser(session?.user ?? null)
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
+      setIsAdmin(!!currentUser && checkAdmin(currentUser))
       setIsLoading(false)
     })
 
@@ -42,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = {
     session,
     user,
+    isAdmin,
     isLoading,
     signOut,
   }

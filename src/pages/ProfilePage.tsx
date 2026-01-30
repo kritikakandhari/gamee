@@ -16,37 +16,37 @@ export default function ProfilePage() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl font-semibold">Player</h1>
-              <Badge variant="secondary">US</Badge>
-              <Badge variant="secondary">Verified</Badge>
+              <Badge className="bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 border-purple-500/20">US</Badge>
+              <Badge className="bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 border-purple-500/20">Verified</Badge>
             </div>
             <p className="text-sm text-muted-foreground">Profile + performance metadata hooks live here.</p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">Edit Profile</Button>
-          <Button>Connect Game</Button>
+          <Button className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold">Connect Game</Button>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="border-accent/20">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm">Rating</CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
+            <Trophy className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent className="text-2xl font-semibold">1500</CardContent>
         </Card>
-        <Card>
+        <Card className="border-accent/20">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm">Win Rate</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <Activity className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent className="text-2xl font-semibold">52%</CardContent>
         </Card>
-        <Card>
+        <Card className="border-accent/20">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm">Anti-cheat</CardTitle>
-            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+            <ShieldCheck className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent className="text-2xl font-semibold">Enabled</CardContent>
         </Card>

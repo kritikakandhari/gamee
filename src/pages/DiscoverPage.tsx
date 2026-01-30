@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Swords, Trophy, Zap, Users, Clock, Plus, Play } from 'lucide-react';
+import { Search, Swords, Trophy, Zap, Users, Clock, Plus, Play, ShieldAlert } from 'lucide-react';
+import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -22,10 +25,20 @@ const stats = [
 ];
 
 export default function DiscoverPage() {
+  const { isRestricted } = useGeoLocation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [createMatchOpen, setCreateMatchOpen] = useState(false);
+  // Filters (Lobby)
+  const [filterGame, setFilterGame] = useState('all');
+  const [filterRegion, setFilterRegion] = useState('all');
+  const [filterPlatform, setFilterPlatform] = useState('all');
+  const [filterRank, setFilterRank] = useState('all');
+  const [minReputation, setMinReputation] = useState([80]);
+  const [stakeMin, setStakeMin] = useState('');
+  const [stakeMax, setStakeMax] = useState('');
+
   // Match form state
   const [matchType, setMatchType] = useState('QUICK_DUEL');
   const [stakeCents, setStakeCents] = useState(0); // Default to 0 / free for now or user input
@@ -118,6 +131,19 @@ export default function DiscoverPage() {
               Compete in skill-based matches, join tournaments, and climb the leaderboards.
             </motion.p>
 
+            {isRestricted && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3 text-red-200"
+              >
+                <ShieldAlert className="h-5 w-5 text-red-400" />
+                <span className="text-sm">
+                  <span className="font-bold">Region Restricted:</span> Paid matches are not available in your current location.
+                </span>
+              </motion.div>
+            )}
+
             <motion.div
               className="mt-8 flex flex-col gap-4 sm:flex-row"
               initial={{ opacity: 0, y: 20 }}
@@ -128,15 +154,78 @@ export default function DiscoverPage() {
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-purple-400" />
                 <Input
                   className="h-12 bg-white/5 border-white/10 pl-10 text-white placeholder:text-purple-200/50 focus:border-pink-400/50 focus-visible:ring-pink-500/50"
-                  placeholder="Search matches, players, formats..."
+                  placeholder="Search by player or lobby rules..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+
+              {/* LOBBY FILTERS ROW */}
+              {/* LOBBY FILTERS ROW */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full mt-4">
+                <Select value={filterGame} onValueChange={setFilterGame}>
+                  <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
+                    <SelectValue placeholder="All Games" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Games</SelectItem>
+                    <SelectItem value="SF6">Street Fighter 6</SelectItem>
+                    <SelectItem value="T8">Tekken 8</SelectItem>
+                    <SelectItem value="MK1">Mortal Kombat 1</SelectItem>
+                    <SelectItem value="GGS">Guilty Gear Strive</SelectItem>
+                    <SelectItem value="DBFZ">Dragon Ball FighterZ</SelectItem>
+                    <SelectItem value="GBVSR">Granblue Fantasy Versus: Rising</SelectItem>
+                    <SelectItem value="UNI2">Under Night In-Birth II</SelectItem>
+                    <SelectItem value="BBCF">BlazBlue Centralfiction</SelectItem>
+                    <SelectItem value="CVS2">Capcom vs. SNK 2</SelectItem>
+                    <SelectItem value="FFCOTW">Fatal Fury: CotW</SelectItem>
+                    <SelectItem value="KI">Killer Instinct</SelectItem>
+                    <SelectItem value="MVC2">Marvel vs. Capcom 2</SelectItem>
+                    <SelectItem value="SC6">SoulCalibur VI</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={filterRegion} onValueChange={setFilterRegion}>
+                  <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
+                    <SelectValue placeholder="Any Region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Any Region</SelectItem>
+                    <SelectItem value="NA">North America</SelectItem>
+                    <SelectItem value="EU">Europe</SelectItem>
+                    <SelectItem value="ASIA">Asia</SelectItem>
+                    <SelectItem value="OCE">Oceania</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={filterPlatform} onValueChange={setFilterPlatform}>
+                  <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
+                    <SelectValue placeholder="All Platforms" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Platforms</SelectItem>
+                    <SelectItem value="PC">PC</SelectItem>
+                    <SelectItem value="PS5">PlayStation 5</SelectItem>
+                    <SelectItem value="XBOX">Xbox Series X|S</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={filterRank} onValueChange={setFilterRank}>
+                  <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
+                    <SelectValue placeholder="All Ranks" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Ranks</SelectItem>
+                    <SelectItem value="pro">Pro Contender</SelectItem>
+                    <SelectItem value="new">New Challenger</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Dialog open={createMatchOpen} onOpenChange={setCreateMatchOpen}>
                 <DialogTrigger asChild>
                   <Button
-                    className="h-12 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg shadow-pink-500/20 transition-all hover:shadow-pink-500/40"
+                    disabled={isRestricted}
+                    className="h-12 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg shadow-pink-500/20 transition-all hover:shadow-pink-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
                     size="lg"
                   >
                     <Plus className="mr-2 h-4 w-4" />
@@ -270,28 +359,57 @@ export default function DiscoverPage() {
                       whileHover={{ y: -5 }}
                     >
                       <div className="relative flex flex-col h-full p-6">
+                        {/* Header: Game & Status */}
                         <div className="flex items-center justify-between mb-4">
-                          <Badge className="bg-gradient-to-r from-pink-500/80 to-purple-600/80 text-white border-0">
-                            {match.match_type.replace('_', ' ')}
-                          </Badge>
-                          <span className="text-sm text-purple-200/70">
-                            {formatCurrency(match.stake_cents)} stake
-                          </span>
+                          <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+                            {/* Mock Game Name based on type for visual */}
+                            {match.match_type.includes('SF6') ? 'Street Fighter 6' : 'Tekken 8'}
+                          </h3>
+                          <div className="flex gap-2">
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30">Open</Badge>
+                            <Badge variant="outline" className="border-white/20 text-gray-400">Public</Badge>
+                          </div>
                         </div>
-                        <h3 className="text-lg font-semibold text-white mb-2">
-                          {match.match_type.replace('_', ' ')}
-                        </h3>
-                        <p className="text-sm text-purple-200/80 mb-4">
-                          Best of {match.best_of} • Prize: {formatCurrency(match.total_pot_cents)}
-                        </p>
-                        <div className="mt-auto pt-4">
+
+                        {/* Player Info - Mocked for UI match */}
+                        <div className="space-y-2 mb-6">
+                          <div className="flex items-center gap-2 text-sm text-gray-300">
+                            <span className="text-gray-500">Challenger:</span>
+                            <span className="font-semibold text-white">Player_One</span>
+                            <Badge variant="secondary" className="text-[10px] h-5 bg-yellow-500/10 text-yellow-400 border-yellow-500/20">Top 500</Badge>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-300">
+                            <span className="text-gray-500">Reputation:</span>
+                            <span className="text-green-400 font-mono">100%</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-300">
+                            <span className="text-gray-500">Platform:</span>
+                            <span className="text-white">PC</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-300">
+                            <span className="text-gray-500">Posted:</span>
+                            <span className="text-gray-400">Today</span>
+                          </div>
+                        </div>
+
+                        {/* Stakes & Action */}
+                        <div className="bg-black/20 rounded-xl p-4 border border-white/5 mt-auto">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-sm text-purple-200/70">Stake</span>
+                            <span className="text-xl font-bold text-white">{formatCurrency(match.stake_cents)}</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-sm text-purple-200/70">Payout</span>
+                            <span className="text-lg font-mono text-green-400">~{formatCurrency(match.stake_cents * 1.8)}</span>
+                          </div>
+
                           <Button
-                            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white"
+                            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold"
                             onClick={() => handleAcceptMatch(match.id)}
                             disabled={acceptMatchMutation.isPending}
                           >
-                            <Play className="mr-2 h-4 w-4" />
-                            {acceptMatchMutation.isPending ? 'Accepting...' : 'Accept Match'}
+                            <Swords className="mr-2 h-4 w-4" />
+                            {acceptMatchMutation.isPending ? 'Joining...' : 'Fight Now'}
                           </Button>
                         </div>
                       </div>

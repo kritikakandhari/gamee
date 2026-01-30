@@ -46,51 +46,29 @@ export const matchesApi = {
         return { data };
     },
 
-    // Create a new match
+    // Create a new match (Secure with Fee)
     createMatch: async (params: { match_type: string; stake_cents: number; best_of: number }) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
         const { data, error } = await supabase
-            .from('matches')
-            .insert({
-                created_by: user.id,
-                match_type: params.match_type,
-                stake_cents: params.stake_cents,
-                total_pot_cents: params.stake_cents * 2, // Simple pot calculation
-                best_of: params.best_of,
-                status: 'CREATED'
-            })
-            .select()
-            .single();
+            .rpc('create_match_with_wallet', {
+                p_match_type: params.match_type,
+                p_stake_cents: params.stake_cents,
+                p_best_of: params.best_of
+            });
 
         if (error) throw error;
-        return data;
+        return data; // Returns { success: true, match_id: ... }
     },
 
-    // Accept a match
+    // Accept a match (Secure with Fee)
     acceptMatch: async (matchId: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
         const { data, error } = await supabase
-            .from('matches')
-            .update({
-                accepted_by: user.id,
-                status: 'ACCEPTED',
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', matchId)
-            .eq('status', 'CREATED') // Ensure it's still open
-            // .neq('created_by', user.id) // Ensure creator can't accept own match (RLS should handle, but good check)
-            .select()
-            .single();
+            .rpc('join_match_with_wallet', { p_match_id: matchId });
 
         if (error) throw error;
         return data;
     },
 
-    // Start a match
+    // Start a match (Unlock for play)
     startMatch: async (matchId: string) => {
         const { error } = await supabase
             .from('matches')
@@ -100,19 +78,36 @@ export const matchesApi = {
         if (error) throw error;
     },
 
-    // Complete a match (Claim Victory)
+    // Complete a match (Claim Victory & Payout)
     completeMatch: async (matchId: string) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
 
-        // Call the secure RPC function we just created
+        // 1. Process Payouts (The Financial Transaction)
         const { data, error } = await supabase
-            .rpc('complete_match', {
-                match_id: matchId,
-                winner_id: user.id
+            .rpc('complete_match_with_payout', {
+                p_match_id: matchId,
+                p_winner_id: user.id
             });
 
         if (error) throw error;
+
+        // 2. [AI LAYER] Simulate Game Client uploading stats
+        // In a real app, this comes from the Anti-Cheat Driver / Game API.
+        // Here we simulate a "Suspicious Speed Run" sometimes.
+        const isSuspicious = Math.random() > 0.5; // 50% chance to be suspicious for demo
+        const simDuration = isSuspicious ? 15 : 450; // 15s (Flagged) vs 7.5m (Safe)
+        const simApm = Math.floor(Math.random() * 400) + 100;
+
+        await supabase.from('match_stats').insert({
+            match_id: matchId,
+            player_id: user.id,
+            duration_seconds: simDuration,
+            apm: simApm,
+            damage_dealt: 5000,
+            damage_taken: 3000
+        });
+
         return data;
     }
 };
