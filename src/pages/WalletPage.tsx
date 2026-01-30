@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 
 export default function WalletPage() {
@@ -35,10 +36,26 @@ export default function WalletPage() {
         if (user) fetchData();
     }, [user]);
 
+    const [depositAmount, setDepositAmount] = useState<string>('25');
+    const [selectedMethod, setSelectedMethod] = useState<'card' | 'paypal' | 'crypto'>('card');
+    const [submitting, setSubmitting] = useState(false);
+
+    const presetAmounts = [10, 25, 50, 100];
+
     const handleDeposit = async () => {
-        // Mock Deposit
-        await walletApi.addFunds(10000); // $100.00
-        fetchData(); // Refresh
+        const amount = parseFloat(depositAmount);
+        if (isNaN(amount) || amount < 5) return;
+
+        try {
+            setSubmitting(true);
+            // Mock Deposit
+            await walletApi.addFunds(Math.round(amount * 100)); // Convert to cents
+            await fetchData(); // Refresh
+            setSubmitting(false);
+        } catch (err) {
+            console.error(err);
+            setSubmitting(false);
+        }
     };
 
     const formatCurrency = (cents: number) => {
@@ -55,32 +72,103 @@ export default function WalletPage() {
                     <p className="text-gray-400">{t('app.wallet.subtitle')}</p>
                 </div>
 
-                {/* Balance Card */}
-                <Card className="bg-white/5 border-white/10 backdrop-blur-md">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-white">
-                            <WalletIcon className="h-5 w-5 text-purple-400" />
-                            {t('app.wallet.balanceTitle')}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-end justify-between">
-                            <div>
-                                <div className="text-4xl font-bold text-white tracking-tight">
-                                    {loading ? '...' : formatCurrency(wallet?.balance_cents || 0)}
-                                </div>
-                                <p className="text-sm text-gray-400 mt-1">{t('app.wallet.available')}</p>
+                {/* Deposit Section */}
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* Balance Card */}
+                    <Card className="bg-white/5 border-white/10 backdrop-blur-md flex flex-col justify-between">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-white">
+                                <WalletIcon className="h-5 w-5 text-purple-400" />
+                                {t('app.wallet.balanceTitle')}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-5xl font-bold text-white tracking-tight">
+                                {loading ? '...' : formatCurrency(wallet?.balance_cents || 0)}
                             </div>
+                            <p className="text-sm text-gray-400 mt-2">{t('app.wallet.available')}</p>
+
+                            <div className="mt-8 p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                                <p className="text-xs text-purple-200/70 leading-relaxed">
+                                    <span className="font-bold text-purple-300">Monetization Note:</span> A 5% service fee is applied to match prizes to support the platform and anti-cheat infrastructure.
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Deposit Card */}
+                    <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+                        <CardHeader>
+                            <CardTitle className="text-white text-lg">Add Funds</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {/* Preset Buttons */}
+                            <div className="grid grid-cols-4 gap-2">
+                                {presetAmounts.map((amt) => (
+                                    <Button
+                                        key={amt}
+                                        variant="outline"
+                                        onClick={() => setDepositAmount(amt.toString())}
+                                        className={cn(
+                                            "border-white/10 bg-white/5 hover:bg-white/10 text-white",
+                                            depositAmount === amt.toString() && "border-purple-500 bg-purple-500/20"
+                                        )}
+                                    >
+                                        ${amt}
+                                    </Button>
+                                ))}
+                            </div>
+
+                            {/* Custom Amount */}
+                            <div className="space-y-2">
+                                <label className="text-xs text-gray-400">Custom Amount (Min $5.00)</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                    <input
+                                        type="number"
+                                        value={depositAmount}
+                                        onChange={(e) => setDepositAmount(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-md py-2 pl-7 pr-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Method Selector */}
+                            <div className="space-y-2">
+                                <label className="text-xs text-gray-400">Payment Method</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['card', 'paypal', 'crypto'].map((m) => (
+                                        <button
+                                            key={m}
+                                            onClick={() => setSelectedMethod(m as any)}
+                                            className={cn(
+                                                "p-2 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center",
+                                                selectedMethod === m && "border-purple-500 bg-purple-500/20"
+                                            )}
+                                        >
+                                            <img
+                                                src={m === 'card' ? 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg' :
+                                                    m === 'paypal' ? 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg' :
+                                                        'https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg'}
+                                                className="h-4 opacity-70 grayscale contrast-125"
+                                                alt={m}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             <Button
                                 onClick={handleDeposit}
-                                className="bg-gradient-to-r from-green-500 to-emerald-600 text-white"
+                                disabled={submitting || !depositAmount || parseFloat(depositAmount) < 5}
+                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold h-12"
                             >
-                                <ArrowDownLeft className="mr-2 h-4 w-4" />
-                                {t('app.wallet.addFundsTest')}
+                                {submitting ? 'Processing...' : `Deposit $${depositAmount || '0.00'}`}
                             </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                </div>
 
                 {/* Transactions List */}
                 <div>

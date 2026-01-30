@@ -84,6 +84,8 @@ export const matchesApi = {
         if (!user) throw new Error("User not authenticated");
 
         // 1. Process Payouts (The Financial Transaction)
+        // Note: The RPC on the backend should handle the 5% service fee deduction.
+        // For the UI, we assume the backend deducts it from the total pot.
         const { data, error } = await supabase
             .rpc('complete_match_with_payout', {
                 p_match_id: matchId,
@@ -93,10 +95,8 @@ export const matchesApi = {
         if (error) throw error;
 
         // 2. [AI LAYER] Simulate Game Client uploading stats
-        // In a real app, this comes from the Anti-Cheat Driver / Game API.
-        // Here we simulate a "Suspicious Speed Run" sometimes.
-        const isSuspicious = Math.random() > 0.5; // 50% chance to be suspicious for demo
-        const simDuration = isSuspicious ? 15 : 450; // 15s (Flagged) vs 7.5m (Safe)
+        const isSuspicious = Math.random() > 0.9; // Reduced for real-world feel
+        const simDuration = isSuspicious ? 15 : 450;
         const simApm = Math.floor(Math.random() * 400) + 100;
 
         await supabase.from('match_stats').insert({

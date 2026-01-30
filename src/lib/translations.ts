@@ -196,7 +196,7 @@ export type TranslationKey =
     | 'app.wallet.subtitle'
     | 'app.wallet.balanceTitle'
     | 'app.wallet.available'
-    | 'app.wallet.addFundsTest'
+    | 'app.wallet.addFunds'
     | 'app.wallet.recentTransactions'
     | 'app.wallet.noTransactions'
     // App - Profile
@@ -430,7 +430,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
         'app.wallet.subtitle': 'Manage your funds and transactions.',
         'app.wallet.balanceTitle': 'Current Balance',
         'app.wallet.available': 'Available for matches',
-        'app.wallet.addFundsTest': 'Add $100 (Test)',
+        'app.wallet.addFunds': 'Proceed to Deposit',
         'app.wallet.recentTransactions': 'Recent Transactions',
         'app.wallet.noTransactions': 'No transactions yet.',
         // App - Profile
@@ -663,7 +663,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
         'app.wallet.subtitle': 'Administra tus fondos y transacciones.',
         'app.wallet.balanceTitle': 'Saldo Actual',
         'app.wallet.available': 'Disponible para partidas',
-        'app.wallet.addFundsTest': 'Agregar $100 (Prueba)',
+        'app.wallet.addFunds': 'Agregar $100 (Prueba)',
         'app.wallet.recentTransactions': 'Transacciones Recientes',
         'app.wallet.noTransactions': 'Aún no hay transacciones.',
         // App - Profile
@@ -896,7 +896,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
         'app.wallet.subtitle': 'Gérez vos fonds et transactions.',
         'app.wallet.balanceTitle': 'Solde Actuel',
         'app.wallet.available': 'Disponible pour les matchs',
-        'app.wallet.addFundsTest': 'Ajouter 100$ (Test)',
+        'app.wallet.addFunds': 'Ajouter 100$ (Test)',
         'app.wallet.recentTransactions': 'Transactions Récentes',
         'app.wallet.noTransactions': 'Aucune transaction pour le moment.',
         // App - Profile
@@ -1129,7 +1129,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
         'app.wallet.subtitle': '資金と取引を管理します。',
         'app.wallet.balanceTitle': '現在の残高',
         'app.wallet.available': 'マッチに使用可能',
-        'app.wallet.addFundsTest': '$100追加 (テスト)',
+        'app.wallet.addFunds': '$100追加 (テスト)',
         'app.wallet.recentTransactions': '最近の取引',
         'app.wallet.noTransactions': '取引はまだありません。',
         // App - Profile
@@ -1362,7 +1362,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
         'app.wallet.subtitle': '管理您的资金和交易。',
         'app.wallet.balanceTitle': '当前余额',
         'app.wallet.available': '可用于比赛',
-        'app.wallet.addFundsTest': '添加 $100 (测试)',
+        'app.wallet.addFunds': '添加 $100 (测试)',
         'app.wallet.recentTransactions': '最近交易',
         'app.wallet.noTransactions': '暂无交易。',
         // App - Profile
@@ -1595,7 +1595,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
         'app.wallet.subtitle': 'Gerencie seus fundos e transações.',
         'app.wallet.balanceTitle': 'Saldo Atual',
         'app.wallet.available': 'Disponível para partidas',
-        'app.wallet.addFundsTest': 'Adicionar $100 (Teste)',
+        'app.wallet.addFunds': 'Adicionar $100 (Teste)',
         'app.wallet.recentTransactions': 'Transações Recentes',
         'app.wallet.noTransactions': 'Nenhuma transação ainda.',
         // App - Profile
