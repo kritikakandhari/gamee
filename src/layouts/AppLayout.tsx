@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
 // import { LegalFooter } from '@/components/layout/LegalFooter'; // Kept imports
 import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -147,7 +147,7 @@ function NavLinksAdminExtension({ isMobile, onNavigate }: { isMobile: boolean, o
 
 
 function AppLayout() {
-  const { user, signOut } = useAuthContext();
+  const { user, signOut, isLoading } = useAuthContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -157,8 +157,16 @@ function AppLayout() {
     setIsMobileMenuOpen(false);
   }, [location]);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
   if (!user) {
-    return null;
+    return <Navigate to="/login" replace />;
   }
 
   // Derive profile from Supabase user metadata
