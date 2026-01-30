@@ -1,3 +1,12 @@
+import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+
+import { useAuth as useAuthContext } from '@/auth/AuthProvider';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   DropdownMenu,
@@ -22,7 +31,49 @@ const navItems: NavItem[] = [
   { to: '/app/insights', labelKey: 'nav.gameInsights', icon: Brain, color: 'text-pink-500' },
 ];
 
-// ... FloatingParticles ...
+const FloatingParticles = () => {
+  const [particles] = useState(() =>
+    Array(20).fill(0).map(() => ({
+      id: Math.random(),
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      speed: Math.random() * 0.5 + 0.1,
+      delay: Math.random() * 5,
+      color: Math.random() > 0.7 ? '#8B5CF6' : '#4F46E5',
+      opacity: Math.random() * 0.1 + 0.05
+    }))
+  );
+
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full"
+          style={{
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            backgroundColor: particle.color,
+            opacity: particle.opacity
+          }}
+          animate={{
+            y: [0, 50, 0],
+            opacity: [particle.opacity, particle.opacity * 2, particle.opacity],
+          }}
+          transition={{
+            duration: 5 + particle.speed * 10,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: "easeInOut"
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; isMobile?: boolean }) {
   const location = useLocation();
@@ -69,7 +120,35 @@ function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; i
   );
 }
 
-// ... NavLinksAdminExtension ...
+// Separate component to hook into auth context without prop drilling too much if I don't want to change NavLinks signature extensively
+function NavLinksAdminExtension({ isMobile, onNavigate }: { isMobile: boolean, onNavigate?: () => void }) {
+  const { isAdmin } = useAuthContext();
+  const location = useLocation();
+  const isActive = location.pathname.startsWith('/app/admin');
+
+  if (!isAdmin) return null;
+
+  return (
+    <NavLink
+      to="/app/admin"
+      onClick={onNavigate}
+      className={cn(
+        'flex items-center gap-2 text-sm font-medium transition-colors',
+        isActive
+          ? 'text-red-400'
+          : 'text-gray-400 hover:text-red-400',
+        isMobile ? 'w-full px-4 py-3 rounded-lg hover:bg-white/5' : ''
+      )}
+    >
+      <ShieldAlert className={cn('h-4 w-4', isActive ? 'text-red-400' : 'text-gray-400 hover:text-red-400')} />
+      <span className={cn(
+        isActive ? 'text-red-400' : 'text-gray-400 hover:text-red-400'
+      )}>
+        Admin
+      </span>
+    </NavLink>
+  )
+}
 
 function AppLayout() {
   const { user, signOut, isLoading } = useAuthContext();
@@ -78,12 +157,24 @@ function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ... useEffect ...
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-purple-500"></div>
+      </div>
+    );
+  }
 
-  // ... if isLoading ...
-  // ... if !user ...
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  // ... profile ...
+  // Derive profile from Supabase user metadata
+  const profile = {
+    username: (user.user_metadata?.username || user.email?.split('@')[0] || 'User') as string,
+    display_name: (user.user_metadata?.display_name || user.user_metadata?.full_name || user.user_metadata?.username || user.email?.split('@')[0] || 'User') as string,
+    avatar_url: (user.user_metadata?.avatar_url || user.user_metadata?.picture) as string | undefined,
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { translations, Language, TranslationKey, languageNames } from '@/lib/translations';
+import { createContext, useContext, useState } from 'react';
+import { translations, languageNames } from '@/lib/translations';
+import type { Language, TranslationKey } from '@/lib/translations';
 
 type LanguageContextType = {
     language: Language;
