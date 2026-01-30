@@ -5,7 +5,7 @@ interface PaymentProcessorsProps {
     amount: number; // in cents
     onSuccess: (details: any) => void;
     onError: (error: any) => void;
-    method: 'paypal' | 'card' | 'razorpay';
+    method: 'paypal' | 'card' | 'razorpay' | 'crypto';
 }
 
 export const PaymentProcessors: React.FC<PaymentProcessorsProps> = ({
@@ -114,6 +114,52 @@ export const PaymentProcessors: React.FC<PaymentProcessorsProps> = ({
                 </Button>
                 <p className="text-[10px] text-gray-500 text-center">
                     Secure local & international payments via Razorpay.
+                </p>
+            </div>
+        );
+    }
+
+    if (method === 'crypto') {
+        const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"; // Placeholder Demo Address
+
+        return (
+            <div className="w-full space-y-4 p-5 bg-white/5 rounded-lg border border-white/10 flex flex-col items-center">
+                <div className="bg-white p-2 rounded-lg mb-2">
+                    {/* Placeholder QR Code - In real app, use qrcode.react */}
+                    <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bitcoin:${bitcoinAddress}?amount=${(amount / 100000).toFixed(8)}`}
+                        alt="Bitcoin QR Code"
+                        className="h-32 w-32"
+                    />
+                </div>
+
+                <div className="w-full space-y-2 text-center">
+                    <p className="text-xs text-gray-400">Send exactly <span className="text-white font-mono">{(amount / 100000).toFixed(8)} BTC</span> to:</p>
+                    <div className="bg-black/40 p-2 rounded border border-white/10 flex items-center justify-between gap-2 overflow-hidden">
+                        <code className="text-[10px] text-cyan-400 truncate">{bitcoinAddress}</code>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-[10px] hover:bg-white/10"
+                            onClick={() => navigator.clipboard.writeText(bitcoinAddress)}
+                        >
+                            Copy
+                        </Button>
+                    </div>
+                </div>
+
+                <Button
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold h-11"
+                    onClick={() => {
+                        // Simulated Crypto Verification for Demo
+                        onSuccess({ id: 'btc_mock_txn', amount, method: 'bitcoin' });
+                    }}
+                >
+                    I have sent the payment
+                </Button>
+
+                <p className="text-[10px] text-gray-500 text-center animate-pulse">
+                    Waiting for network confirmation (0/3)...
                 </p>
             </div>
         );

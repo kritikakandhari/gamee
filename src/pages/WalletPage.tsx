@@ -143,8 +143,8 @@ export default function WalletPage() {
                                             key={m}
                                             onClick={() => setSelectedMethod(m as any)}
                                             className={cn(
-                                                "p-2 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center",
-                                                selectedMethod === m && "border-purple-500 bg-purple-500/20"
+                                                "p-2 rounded-md border border-white/10 bg-white hover:bg-white/90 transition-all flex items-center justify-center h-10 w-full",
+                                                selectedMethod === m && "ring-2 ring-purple-500 border-transparent"
                                             )}
                                         >
                                             <img
@@ -152,7 +152,7 @@ export default function WalletPage() {
                                                     m === 'paypal' ? 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg' :
                                                         m === 'razorpay' ? 'https://razorpay.com/favicon.png' :
                                                             'https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg'}
-                                                className="h-4 opacity-70 grayscale contrast-125"
+                                                className="h-5 w-auto object-contain"
                                                 alt={m}
                                             />
                                         </button>
@@ -163,14 +163,38 @@ export default function WalletPage() {
                             {/* Real Payment Processor Integration */}
                             <div className="pt-4 border-t border-white/10">
                                 <p className="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">
-                                    Secure Checkout {(selectedMethod === 'paypal' ? 'via PayPal' : 'via Stripe')}
+                                    Secure Checkout via {
+                                        selectedMethod === 'card' ? 'Stripe' :
+                                            selectedMethod === 'paypal' ? 'PayPal' :
+                                                selectedMethod === 'razorpay' ? 'Razorpay' :
+                                                    'Bitcoin'
+                                    }
                                 </p>
                                 <PaymentProcessors
                                     amount={Math.round(parseFloat(depositAmount || '0') * 100)}
-                                    method={selectedMethod === 'crypto' ? 'paypal' : selectedMethod as 'paypal' | 'card' | 'razorpay'}
+                                    method={selectedMethod}
                                     onSuccess={handlePaymentSuccess}
                                     onError={handlePaymentError}
                                 />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Monetization / Service Fee Info */}
+                    <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-white/10 mt-4">
+                        <CardContent className="pt-6">
+                            <div className="flex items-start gap-3">
+                                <div className="p-2 bg-blue-500/20 rounded-lg">
+                                    <svg className="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-semibold text-white">Platform Service Fee</h4>
+                                    <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                                        FGCMM charges a flat <strong>5% service fee</strong> on all match payouts. This fee supports our high-risk payment infrastructure, server maintenance, and advanced anti-cheat systems.
+                                    </p>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
