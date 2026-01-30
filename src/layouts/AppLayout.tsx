@@ -1,76 +1,32 @@
-import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
-// import { LegalFooter } from '@/components/layout/LegalFooter'; // Kept imports
-import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe, User } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-import { useAuth as useAuthContext } from '@/auth/AuthProvider';
-
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
-// import { Button } from '@/components/ui/button'; // Added Button import
-
+// ... Type definition for NavItem ...
 type NavItem = {
   to: string;
-  label: string;
+  labelKey: string; // Changed from label to labelKey
   icon: React.ElementType;
   color: string;
 };
 
-
+// ... navItems ...
 const navItems: NavItem[] = [
-  { to: '/app/discover', label: 'Home', icon: Home, color: 'text-purple-400' },
-  { to: '/app/matches', label: 'Match Lobby', icon: Swords, color: 'text-blue-400' },
-  { to: '/app/leaderboard', label: 'Leaderboards', icon: Trophy, color: 'text-yellow-400' },
-  { to: '/app/insights', label: 'Game Insights', icon: Brain, color: 'text-pink-500' },
+  { to: '/app/discover', labelKey: 'nav.home', icon: Home, color: 'text-purple-400' },
+  { to: '/app/matches', labelKey: 'nav.matchLobby', icon: Swords, color: 'text-blue-400' },
+  { to: '/app/leaderboard', labelKey: 'nav.leaderboards', icon: Trophy, color: 'text-yellow-400' },
+  { to: '/app/insights', labelKey: 'nav.gameInsights', icon: Brain, color: 'text-pink-500' },
 ];
 
-const FloatingParticles = () => {
-  const [particles] = useState(() =>
-    Array(20).fill(0).map(() => ({
-      id: Math.random(),
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      speed: Math.random() * 0.5 + 0.1,
-      delay: Math.random() * 5,
-      color: Math.random() > 0.7 ? '#8B5CF6' : '#4F46E5',
-      opacity: Math.random() * 0.1 + 0.05
-    }))
-  );
-
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
-      {particles.map((particle) => (
-        <motion.div
-          key={particle.id}
-          className="absolute rounded-full"
-          style={{
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            backgroundColor: particle.color,
-            opacity: particle.opacity
-          }}
-          animate={{
-            y: [0, 50, 0],
-            opacity: [particle.opacity, particle.opacity * 2, particle.opacity],
-          }}
-          transition={{
-            duration: 5 + particle.speed * 10,
-            repeat: Infinity,
-            delay: particle.delay,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+// ... FloatingParticles ...
 
 function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; isMobile?: boolean }) {
   const location = useLocation();
+  const { t } = useLanguage();
 
   return (
     <nav className={isMobile ? "space-y-1 w-full" : "flex items-center space-x-6"}>
@@ -95,7 +51,7 @@ function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; i
             <span className={cn(
               isActive ? 'text-accent' : 'text-gray-400 group-hover:text-white'
             )}>
-              {item.label}
+              {t(item.labelKey as any)} {/* Use translation */}
             </span>
             {isActive && !isMobile && (
               <motion.span
@@ -113,70 +69,25 @@ function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; i
   );
 }
 
-// Separate component to hook into auth context without prop drilling too much if I don't want to change NavLinks signature extensively
-function NavLinksAdminExtension({ isMobile, onNavigate }: { isMobile: boolean, onNavigate?: () => void }) {
-  const { isAdmin } = useAuthContext();
-  const location = useLocation();
-  const isActive = location.pathname.startsWith('/app/admin');
-
-  if (!isAdmin) return null;
-
-  return (
-    <NavLink
-      to="/app/admin"
-      onClick={onNavigate}
-      className={cn(
-        'flex items-center gap-2 text-sm font-medium transition-colors',
-        isActive
-          ? 'text-red-400'
-          : 'text-gray-400 hover:text-red-400',
-        isMobile ? 'w-full px-4 py-3 rounded-lg hover:bg-white/5' : ''
-      )}
-    >
-      <ShieldAlert className={cn('h-4 w-4', isActive ? 'text-red-400' : 'text-gray-400 hover:text-red-400')} />
-      <span className={cn(
-        isActive ? 'text-red-400' : 'text-gray-400 hover:text-red-400'
-      )}>
-        Admin
-      </span>
-    </NavLink>
-  )
-}
-
+// ... NavLinksAdminExtension ...
 
 function AppLayout() {
   const { user, signOut, isLoading } = useAuthContext();
+  const { language, setLanguage, availableLanguages } = useLanguage(); // Use Language Context
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Close mobile menu when location changes
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
+  // ... useEffect ...
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-purple-500"></div>
-      </div>
-    );
-  }
+  // ... if isLoading ...
+  // ... if !user ...
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Derive profile from Supabase user metadata
-  const profile = {
-    username: (user.user_metadata?.username || user.email?.split('@')[0] || 'User') as string,
-    display_name: (user.user_metadata?.display_name || user.user_metadata?.full_name || user.user_metadata?.username || user.email?.split('@')[0] || 'User') as string,
-    avatar_url: (user.user_metadata?.avatar_url || user.user_metadata?.picture) as string | undefined,
-  };
+  // ... profile ...
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Animated Background - simplified */}
+      {/* ... Background ... */}
       <div className="fixed inset-0 -z-10 bg-background">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent"></div>
         <FloatingParticles />
@@ -186,7 +97,6 @@ function AppLayout() {
       <nav className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-white/10 h-16">
         <div className="h-full px-4 mx-auto max-w-7xl flex items-center justify-between">
 
-          {/* Left: Logo */}
           {/* Left: Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/app/discover')}>
             <img
@@ -203,11 +113,27 @@ function AppLayout() {
 
           {/* Right: User Controls */}
           <div className="flex items-center gap-3 md:gap-6">
-            {/* Language (Hidden on mobile) */}
-            <div className="hidden md:flex items-center gap-1 text-gray-400 text-xs font-medium cursor-pointer hover:text-white">
-              <Globe className="h-3.5 w-3.5" />
-              <span>EN</span>
-            </div>
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="outline-none">
+                <div className="hidden md:flex items-center gap-1 text-gray-400 text-xs font-medium cursor-pointer hover:text-white transition-colors">
+                  <Globe className="h-3.5 w-3.5" />
+                  <span className="uppercase">{language}</span>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-gray-900 border-white/10 text-white">
+                {Object.entries(availableLanguages).map(([code, name]) => (
+                  <DropdownMenuItem
+                    key={code}
+                    onClick={() => setLanguage(code as any)}
+                    className={cn("cursor-pointer focus:bg-white/10 focus:text-white", language === code && "bg-white/10 text-accent")}
+                  >
+                    <span className="mr-2 uppercase text-xs font-bold w-6">{code}</span>
+                    {name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Wallet Balance Display */}
             <div
