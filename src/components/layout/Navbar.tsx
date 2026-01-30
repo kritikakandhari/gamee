@@ -33,10 +33,10 @@ function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; i
     const { user } = useAuthContext();
     const navigate = useNavigate();
 
-    const handleNavClick = (e: React.MouseEvent) => {
+    const handleNavClick = (e: React.MouseEvent, to: string) => {
         if (!user) {
             e.preventDefault();
-            navigate('/login');
+            navigate('/login', { state: { from: to } });
             if (onNavigate) onNavigate();
             return;
         }
@@ -53,7 +53,7 @@ function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; i
                     <NavLink
                         key={item.to}
                         to={item.to}
-                        onClick={(e) => handleNavClick(e)}
+                        onClick={(e) => handleNavClick(e, item.to)}
                         className={cn(
                             'flex items-center gap-2 text-sm font-medium transition-colors relative group whitespace-nowrap',
                             isActive
