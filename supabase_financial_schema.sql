@@ -201,7 +201,7 @@ begin
 
   -- Calculate Payout
   v_total_pot := v_match.total_pot_cents;
-  v_platform_fee := round(v_total_pot * 0.10); -- 10% Fee
+  v_platform_fee := round(v_total_pot * 0.05); -- 5% Fee
   v_payout := v_total_pot - v_platform_fee;
 
   -- Update Match (Winner, Status)

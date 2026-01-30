@@ -80,9 +80,17 @@ export default function MatchesPage() {
     mutationFn: async (matchId: string) => {
       return await matchesApi.completeMatch(matchId);
     },
-    onSuccess: () => {
+    onSuccess: (_, matchId: string) => {
       queryClient.invalidateQueries({ queryKey: ['my-matches'] });
-      // alert("Victory claimed! match completed."); // Optional: silent update is smoother
+
+      // Calculate display payout (95% of pot)
+      const match = matches?.find(m => m.id === matchId);
+      if (match) {
+        const payout = (match.total_pot_cents * 0.95) / 100;
+        alert(`🏆 VICTORY! $${payout.toFixed(2)} has been added to your wallet!`);
+      } else {
+        alert("🏆 VICTORY! Your winnings have been added to your wallet.");
+      }
     },
     onError: (err) => {
       console.error("Failed to complete match", err);
