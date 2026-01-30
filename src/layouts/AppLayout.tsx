@@ -23,8 +23,6 @@ const navItems: NavItem[] = [
   { to: '/app/matches', label: 'Match Lobby', icon: Swords, color: 'text-blue-400' },
   { to: '/app/leaderboard', label: 'Leaderboards', icon: Trophy, color: 'text-yellow-400' },
   { to: '/app/insights', label: 'Game Insights', icon: Brain, color: 'text-pink-500' },
-  { to: '/app/wallet', label: 'Wallet', icon: Wallet, color: 'text-green-400' },
-  { to: '/app/profile', label: 'Profile', icon: User, color: 'text-pink-400' },
 ];
 
 const FloatingParticles = () => {
@@ -86,7 +84,7 @@ function NavLinks({ onNavigate, isMobile = false }: { onNavigate?: () => void; i
             to={item.to}
             onClick={onNavigate}
             className={cn(
-              'flex items-center gap-2 text-sm font-medium transition-colors relative group',
+              'flex items-center gap-2 text-sm font-medium transition-colors relative group whitespace-nowrap',
               isActive
                 ? 'text-accent'
                 : 'text-gray-400 hover:text-white',
