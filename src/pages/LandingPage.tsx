@@ -196,7 +196,6 @@ export default function LandingPage() {
                     }
                   }}
                 >
-                  <span style={{ color: COLORS.light }}>FGC </span>
                   <span style={{ color: COLORS.primary }}>MONEY </span>
                   <span style={{ color: COLORS.purple }}>MATCH</span>
                 </motion.span>
@@ -532,7 +531,7 @@ export default function LandingPage() {
               style={{ color: COLORS.accent }}
             >
               <Sparkles className="h-4 w-4" />
-              <span>Why Choose FGC MONEY MATCH</span>
+              <span>Why Choose MONEY MATCH</span>
             </motion.div>
 
             <motion.h2
@@ -649,7 +648,7 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              {t('landing.cta.communityTitle')} <span style={{ color: COLORS.light }}>FGC </span> <span style={{ color: COLORS.primary }}>MONEY </span> <span style={{ color: COLORS.purple }}>MATCH</span> {t('landing.cta.communityTitleEnd')}
+              {t('landing.cta.communityTitle')} <span style={{ color: COLORS.primary }}>MONEY </span> <span style={{ color: COLORS.purple }}>MATCH</span> {t('landing.cta.communityTitleEnd')}
             </motion.h2>
 
             <motion.p

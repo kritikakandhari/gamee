@@ -6,6 +6,7 @@ import { useAuth as useAuthContext } from '@/auth/AuthProvider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -127,22 +128,8 @@ export function Navbar() {
         avatar_url: (user.user_metadata?.avatar_url || user.user_metadata?.picture) as string | undefined,
     } : null;
 
-    // Mock Notifications
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Welcome!', message: 'Welcome to FGC Money Match.', read: false, time: '2m ago' },
-        { id: 2, title: 'Match Ready', message: 'Your match against Player2 is ready.', read: false, time: '1h ago' },
-        { id: 3, title: 'System Update', message: 'The platform has been updated.', read: true, time: '1d ago' },
-    ]);
+    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
-    const unreadCount = notifications.filter(n => !n.read).length;
-
-    const handleMarkAsRead = (id: number) => {
-        setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
-    };
-
-    const handleMarkAllRead = () => {
-        setNotifications(notifications.map(n => ({ ...n, read: true })));
-    };
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-white/10 h-16">
@@ -152,7 +139,7 @@ export function Navbar() {
                 <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(user ? '/app/discover' : '/')}>
                     <img
                         src="/images/logo.png"
-                        alt="FGC Money Match"
+                        alt="Money Match"
                         className="h-10 md:h-12 w-auto object-contain transition-transform hover:scale-105"
                     />
                 </div>
@@ -215,7 +202,7 @@ export function Navbar() {
                                     <h3 className="font-semibold">{t('app.notifications.title')}</h3>
                                     {unreadCount > 0 && (
                                         <button
-                                            onClick={handleMarkAllRead}
+                                            onClick={() => markAllAsRead()}
                                             className="text-xs text-secondary hover:text-secondary/80 font-medium transition-colors"
                                         >
                                             {t('app.notifications.markAllRead')}
@@ -231,15 +218,21 @@ export function Navbar() {
                                         notifications.map((notification) => (
                                             <DropdownMenuItem
                                                 key={notification.id}
-                                                className={`p-4 border-b border-white/5 last:border-0 cursor-pointer focus:bg-white/5 ${!notification.read ? 'bg-white/5' : ''}`}
-                                                onClick={() => handleMarkAsRead(notification.id)}
+                                                className={cn(
+                                                    "p-4 border-b border-white/5 last:border-0 cursor-pointer focus:bg-white/5",
+                                                    !notification.is_read ? 'bg-white/5' : ''
+                                                )}
+                                                onClick={() => markAsRead(notification.id)}
                                             >
                                                 <div className="flex gap-3">
-                                                    <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!notification.read ? 'bg-secondary' : 'bg-transparent'}`} />
+                                                    <div className={cn(
+                                                        "mt-1 h-2 w-2 rounded-full shrink-0",
+                                                        !notification.is_read ? 'bg-secondary' : 'bg-transparent'
+                                                    )} />
                                                     <div className="space-y-1">
                                                         <p className="text-sm font-medium leading-none">{notification.title}</p>
-                                                        <p className="text-xs text-gray-400 line-clamp-2">{notification.message}</p>
-                                                        <p className="text-[10px] text-gray-500">{notification.time}</p>
+                                                        <p className="text-xs text-gray-400 line-clamp-2">{notification.content}</p>
+                                                        <p className="text-[10px] text-gray-500">{new Date(notification.created_at).toLocaleTimeString()}</p>
                                                     </div>
                                                 </div>
                                             </DropdownMenuItem>

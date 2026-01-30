@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,8 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Brain, Target, Swords, Zap, Lightbulb, BookOpen } from 'lucide-react';
+import { Brain, Target, Swords, Zap, Lightbulb, BookOpen, BarChart3, TrendingUp, Users, DollarSign, PieChart, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/auth/AuthProvider';
+import { adminApi } from '@/lib/admin';
+import { cn } from '@/lib/utils';
 import type { TranslationKey } from '@/lib/translations';
 
 const GLOSSARY_TERMS = [
@@ -27,9 +30,17 @@ const GLOSSARY_TERMS = [
 
 export default function InsightsPage() {
     const { t } = useLanguage();
+    const { isAdmin } = useAuth();
     const [activeTab, setActiveTab] = useState('matchup');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
+    const [analytics, setAnalytics] = useState<any>(null);
+
+    useEffect(() => {
+        if (isAdmin) {
+            adminApi.getAnalytics().then(setAnalytics).catch(console.error);
+        }
+    }, [isAdmin]);
 
     // Mock Generators
     const handleGenerate = (type: string) => {
@@ -73,10 +84,7 @@ export default function InsightsPage() {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            // Construct the key dynamically. 
-            // We know our terms match the keys 'app.glossary.[term]'
             const key = `app.glossary.${term}` as TranslationKey;
-
             setResult({
                 title: GLOSSARY_TERMS.find(t => t.value === term)?.label || "Term",
                 content: t(key) || "Definition not found."
@@ -94,28 +102,35 @@ export default function InsightsPage() {
                         className="text-3xl font-bold text-white flex items-center gap-3"
                     >
                         <Brain className="h-8 w-8 text-purple-400" />
-                        {t('app.insights.title')}
+                        {isAdmin ? 'Staff Intelligence' : t('app.insights.title')}
                     </motion.h1>
                     <p className="text-gray-400 mt-2">
-                        {/* Level up your gameplay with AI-powered analysis tools. */}
-                        {t('app.insights.subtitle')}
+                        {isAdmin ? 'Monitor platform growth and user sentiment.' : t('app.insights.subtitle')}
                     </p>
                 </div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="bg-white/5 border border-white/10 p-1 grid grid-cols-4 w-full">
+                    <TabsList className={cn(
+                        "bg-white/5 border border-white/10 p-1 grid w-full",
+                        isAdmin ? "grid-cols-5" : "grid-cols-4"
+                    )}>
                         <TabsTrigger value="matchup" className="data-[state=active]:bg-purple-600">
-                            <Swords className="h-4 w-4 mr-2" /> {t('app.insights.tabs.matchup')}
+                            <Swords className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">{t('app.insights.tabs.matchup')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="drills" className="data-[state=active]:bg-pink-600">
-                            <Target className="h-4 w-4 mr-2" /> {t('app.insights.tabs.drills')}
+                            <Target className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">{t('app.insights.tabs.drills')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="archetype" className="data-[state=active]:bg-blue-600">
-                            <Lightbulb className="h-4 w-4 mr-2" /> {t('app.insights.tabs.archetypes')}
+                            <Lightbulb className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">{t('app.insights.tabs.archetypes')}</span>
                         </TabsTrigger>
                         <TabsTrigger value="glossary" className="data-[state=active]:bg-green-600">
-                            <BookOpen className="h-4 w-4 mr-2" /> {t('app.insights.tabs.glossary')}
+                            <BookOpen className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">{t('app.insights.tabs.glossary')}</span>
                         </TabsTrigger>
+                        {isAdmin && (
+                            <TabsTrigger value="staff" className="data-[state=active]:bg-amber-600">
+                                <BarChart3 className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Analytics</span>
+                            </TabsTrigger>
+                        )}
                     </TabsList>
 
                     {/* MATCHUP STRATEGY TAB */}
@@ -190,13 +205,13 @@ export default function InsightsPage() {
                                     <div className="space-y-3">
                                         <Label>{t('app.insights.difficulty')}</Label>
                                         <div className="flex items-center gap-4">
-                                            <label className="flex items-center gap-2 text-sm text-gray-300">
+                                            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                                                 <input type="radio" name="diff" className="accent-pink-500" /> {t('app.insights.diff.beginner')}
                                             </label>
-                                            <label className="flex items-center gap-2 text-sm text-gray-300">
+                                            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                                                 <input type="radio" name="diff" className="accent-pink-500" defaultChecked /> {t('app.insights.diff.intermediate')}
                                             </label>
-                                            <label className="flex items-center gap-2 text-sm text-gray-300">
+                                            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                                                 <input type="radio" name="diff" className="accent-pink-500" /> {t('app.insights.diff.advanced')}
                                             </label>
                                         </div>
@@ -212,6 +227,94 @@ export default function InsightsPage() {
                             </CardContent>
                         </Card>
                     </TabsContent>
+
+                    {/* STAFF ANALYTICS TAB */}
+                    {isAdmin && (
+                        <TabsContent value="staff" className="mt-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <Card className="bg-white/5 border-white/10">
+                                    <CardHeader className="pb-2">
+                                        <CardDescription className="flex items-center gap-2">
+                                            <Swords className="h-4 w-4 text-blue-400" /> Total Games
+                                        </CardDescription>
+                                        <CardTitle className="text-2xl font-black text-white">{analytics?.total_matches || '...'}</CardTitle>
+                                    </CardHeader>
+                                </Card>
+                                <Card className="bg-white/5 border-white/10">
+                                    <CardHeader className="pb-2">
+                                        <CardDescription className="flex items-center gap-2">
+                                            <DollarSign className="h-4 w-4 text-green-400" /> Avg. Stake
+                                        </CardDescription>
+                                        <CardTitle className="text-2xl font-black text-white">
+                                            ${analytics?.avg_stake_cents ? (analytics.avg_stake_cents / 100).toFixed(2) : '0.00'}
+                                        </CardTitle>
+                                    </CardHeader>
+                                </Card>
+                                <Card className="bg-white/5 border-white/10">
+                                    <CardHeader className="pb-2">
+                                        <CardDescription className="flex items-center gap-2">
+                                            <AlertCircle className="h-4 w-4 text-red-400" /> Support Load
+                                        </CardDescription>
+                                        <CardTitle className="text-2xl font-black text-white">{analytics?.total_support_tickets || '0'}</CardTitle>
+                                    </CardHeader>
+                                </Card>
+                                <Card className="bg-white/5 border-white/10">
+                                    <CardHeader className="pb-2">
+                                        <CardDescription className="flex items-center gap-2">
+                                            <Users className="h-4 w-4 text-purple-400" /> Active Users
+                                        </CardDescription>
+                                        <CardTitle className="text-2xl font-black text-white">{analytics?.total_users || '...'}</CardTitle>
+                                    </CardHeader>
+                                </Card>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <Card className="bg-white/5 border-white/10">
+                                    <CardHeader>
+                                        <CardTitle className="text-sm border-b border-white/5 pb-2 flex items-center gap-2 uppercase tracking-widest text-gray-500">
+                                            <PieChart className="h-4 w-4" /> Platform Popularity
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        {analytics?.extended_stats?.by_platform ? Object.entries(analytics.extended_stats.by_platform).map(([p, count]: any) => (
+                                            <div key={p} className="flex items-center justify-between group">
+                                                <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{p}</span>
+                                                <div className="flex-1 mx-4 h-1 bg-white/5 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-blue-500"
+                                                        style={{ width: `${(count / analytics.total_matches) * 100}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-mono text-gray-500">{count}</span>
+                                            </div>
+                                        )) : <p className="text-xs text-gray-600">No data available yet.</p>}
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="bg-white/5 border-white/10">
+                                    <CardHeader>
+                                        <CardTitle className="text-sm border-b border-white/5 pb-2 flex items-center gap-2 uppercase tracking-widest text-gray-500">
+                                            <TrendingUp className="h-4 w-4" /> Match Types
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        {analytics?.extended_stats?.by_type ? Object.entries(analytics.extended_stats.by_type).map(([t, count]: any) => (
+                                            <div key={t} className="flex items-center justify-between group">
+                                                <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{t}</span>
+                                                <div className="flex-1 mx-4 h-1 bg-white/5 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-purple-500"
+                                                        style={{ width: `${(count / analytics.total_matches) * 100}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-mono text-gray-500">{count}</span>
+                                            </div>
+                                        )) : <p className="text-xs text-gray-600">No data available yet.</p>}
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </TabsContent>
+                    )}
 
                     {/* ARCHETYPE ANALYSIS TAB */}
                     <TabsContent value="archetype" className="mt-6 space-y-6">

@@ -47,5 +47,38 @@ export const adminApi = {
             .eq('id', logId);
 
         if (error) throw error;
+    },
+
+    // Get App Analytics (View)
+    getAnalytics: async () => {
+        const { data, error } = await supabase
+            .from('app_analytics')
+            .select('*')
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    // Get All Support Tickets
+    getSupportTickets: async () => {
+        const { data, error } = await supabase
+            .from('support_tickets')
+            .select('*, profiles:user_id(username, avatar_url)')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data;
+    },
+
+    // Resolve Support Ticket
+    resolveTicket: async (ticketId: string, status: string) => {
+        const { error } = await supabase
+            .rpc('resolve_support_ticket', {
+                p_ticket_id: ticketId,
+                p_status: status
+            });
+
+        if (error) throw error;
     }
 };

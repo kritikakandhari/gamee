@@ -5,6 +5,7 @@ import RequireAuth from '@/auth/RequireAuth'
 import RequireAdmin from '@/auth/RequireAdmin'
 import DiscoverPage from '@/pages/DiscoverPage'
 import MatchesPage from '@/pages/MatchesPage'
+import MatchDetailsPage from '@/pages/MatchDetailsPage'
 import LeaderboardPage from '@/pages/LeaderboardPage'
 import ProfilePage from '@/pages/ProfilePage'
 import WalletPage from '@/pages/WalletPage'
@@ -34,6 +35,14 @@ function App() {
           element={
             <RequireAuth>
               <MatchesPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="matches/:matchId"
+          element={
+            <RequireAuth>
+              <MatchDetailsPage />
             </RequireAuth>
           }
         />

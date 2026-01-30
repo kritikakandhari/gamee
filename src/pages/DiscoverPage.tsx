@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Swords, Trophy, Zap, Users, Clock, Plus, Play, ShieldAlert } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
@@ -18,6 +19,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { matchesApi } from '@/lib/matches';
 
 export default function DiscoverPage() {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { isRestricted } = useGeoLocation();
   const { user } = useAuth();
@@ -59,9 +61,12 @@ export default function DiscoverPage() {
     mutationFn: async (data: { match_type: string; stake_cents: number; best_of: number }) => {
       return await matchesApi.createMatch(data);
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
       setCreateMatchOpen(false);
+      if (data?.match_id) {
+        navigate(`/app/matches/${data.match_id}`);
+      }
     },
     onError: (err) => {
       console.error("Failed to create match", err);
@@ -75,12 +80,14 @@ export default function DiscoverPage() {
     mutationFn: async (matchId: string) => {
       return await matchesApi.acceptMatch(matchId);
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
       queryClient.invalidateQueries({ queryKey: ['my-matches'] });
-      // Redirect to My Matches page so they can see it
-      // @ts-ignore
-      window.location.href = '/app/matches';
+      if (data?.match_id) {
+        navigate(`/app/matches/${data.match_id}`);
+      } else {
+        navigate('/app/matches');
+      }
     },
     onError: (err) => {
       console.error("Failed to accept match", err);
@@ -121,7 +128,7 @@ export default function DiscoverPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {t('app.discover.title')}
+              Find Your Next Money Match
             </motion.h1>
             <motion.p
               className="mt-3 max-w-2xl text-lg text-purple-200/90"
@@ -234,14 +241,14 @@ export default function DiscoverPage() {
                 </DialogTrigger>
                 <DialogContent className="bg-gray-900 border-white/10 text-white">
                   <DialogHeader>
-                    <DialogTitle>{t('app.discover.createMatch.title')}</DialogTitle>
+                    <DialogTitle>Setup Money Match</DialogTitle>
                     <DialogDescription className="text-gray-400">
-                      {t('app.discover.createMatch.desc')}
+                      Configure your challenge. Lobbies are cross-platform by default.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>{t('app.discover.createMatch.type')}</Label>
+                      <Label>Match Type</Label>
                       <select
                         value={matchType}
                         onChange={(e) => setMatchType(e.target.value)}
@@ -252,40 +259,61 @@ export default function DiscoverPage() {
                         <option value="DIRECT_CHALLENGE">Direct Challenge</option>
                       </select>
                     </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Platform</Label>
+                        <select
+                          value={filterPlatform === 'all' ? 'PC' : filterPlatform}
+                          onChange={(e) => setFilterPlatform(e.target.value)}
+                          className="w-full bg-white/5 border border-white/20 rounded-md px-3 py-2 text-white"
+                        >
+                          <option value="PC">PC / Desktop</option>
+                          <option value="MOBILE">Mobile / Tablet</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Game Mode</Label>
+                        <select
+                          value={bestOf}
+                          onChange={(e) => setBestOf(Number(e.target.value))}
+                          className="w-full bg-white/5 border border-white/20 rounded-md px-3 py-2 text-white"
+                        >
+                          <option value={1}>Best of 1</option>
+                          <option value={3}>Best of 3</option>
+                          <option value={5}>Best of 5</option>
+                          <option value={7}>Best of 7</option>
+                        </select>
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
-                      <Label>{t('app.discover.createMatch.stake')}</Label>
+                      <Label>Stake (USD)</Label>
                       <Input
                         type="number"
-                        min="1"
-                        max="1000"
-                        step="0.01"
+                        min="0"
+                        step="1"
+                        placeholder="0.00"
                         value={stakeCents / 100}
-                        onChange={(e) => setStakeCents(Math.round(parseFloat(e.target.value) * 100))}
-                        className="bg-white/5 border-white/20 text-white"
+                        onChange={(e) => setStakeCents(Math.round(parseFloat(e.target.value) * 100) || 0)}
+                        className="bg-white/5 border-white/20 text-white font-mono"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>{t('app.discover.createMatch.bestOf')}</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="7"
-                        value={bestOf}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (val >= 1 && val <= 7 && val % 2 === 1) {
-                            setBestOf(val);
-                          }
-                        }}
-                        className="bg-white/5 border-white/20 text-white"
-                      />
+
+                    <div className="space-y-2 pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[10px] text-gray-500 uppercase font-black">Private Lobby</Label>
+                        <input type="checkbox" className="accent-secondary" />
+                      </div>
+                      <p className="text-[9px] text-gray-500 italic">Only those with a room code can join.</p>
                     </div>
+
                     <Button
                       onClick={handleCreateMatch}
                       disabled={createMatchMutation.isPending}
-                      className="w-full bg-gradient-to-r from-pink-500 to-purple-600"
+                      className="w-full bg-gradient-to-r from-pink-500 to-purple-600 font-black h-12 mt-2"
                     >
-                      {createMatchMutation.isPending ? t('app.discover.createMatch.creating') : t('app.discover.createMatch.submit')}
+                      {createMatchMutation.isPending ? 'ENLISTING...' : 'CREATE MONEY MATCH'}
                     </Button>
                   </div>
                 </DialogContent>
