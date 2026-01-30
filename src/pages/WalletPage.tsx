@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/auth/AuthProvider';
 import { walletApi, type Wallet, type Transaction } from '@/lib/wallet';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { Badge } from '@/components/ui/badge';
+
 
 export default function WalletPage() {
     const { user } = useAuth();

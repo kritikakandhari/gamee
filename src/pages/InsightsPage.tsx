@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Brain, Target, Swords, Zap, Lightbulb, BookOpen, Search } from 'lucide-react';
+import { Brain, Target, Swords, Zap, Lightbulb, BookOpen } from 'lucide-react';
 
 const GLOSSARY_TERMS = [
     { value: "50-50", label: "50/50" },
@@ -71,7 +71,7 @@ export default function InsightsPage() {
                 // For glossary, we pull directly from our dictionary
                 // We'll use the 'result' state just to reuse the display component logic, 
                 // but normally this might be instant.
-                const termKey = (document.getElementById('glossary-select') as HTMLSelectElement)?.value || '50-50';
+                // const termKey = (document.getElementById('glossary-select') as HTMLSelectElement)?.value || '50-50';
                 // Mocking finding the value from a real select state would be better, but simplest way for now:
                 // Actually, let's grab the value from a state we need to add, or just random/hardcode for this 'generate' pattern:
                 // BUT better is to use a state for the selected glossary term.

@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LegalFooter } from '@/components/layout/LegalFooter'; // Kept imports
-import { Home, Swords, Trophy, User, LogOut, Menu, X, Wallet, ChevronDown, Brain, ShieldAlert, Bell, Globe } from 'lucide-react';
+// import { LegalFooter } from '@/components/layout/LegalFooter'; // Kept imports
+import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -8,7 +8,7 @@ import { useAuth as useAuthContext } from '@/auth/AuthProvider';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button'; // Added Button import
+// import { Button } from '@/components/ui/button'; // Added Button import
 
 type NavItem = {
   to: string;

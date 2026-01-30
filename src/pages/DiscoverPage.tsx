@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -35,9 +34,9 @@ export default function DiscoverPage() {
   const [filterRegion, setFilterRegion] = useState('all');
   const [filterPlatform, setFilterPlatform] = useState('all');
   const [filterRank, setFilterRank] = useState('all');
-  const [minReputation, setMinReputation] = useState([80]);
-  const [stakeMin, setStakeMin] = useState('');
-  const [stakeMax, setStakeMax] = useState('');
+  // const [minReputation, setMinReputation] = useState([80]);
+  // const [stakeMin, setStakeMin] = useState('');
+  // const [stakeMax, setStakeMax] = useState('');
 
   // Match form state
   const [matchType, setMatchType] = useState('QUICK_DUEL');

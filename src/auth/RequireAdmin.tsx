@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/auth/AuthProvider'
-import { ShieldAlert } from 'lucide-react'
+
 
 export default function RequireAdmin({ children }: { children: React.ReactNode }) {
     const { user, isAdmin, isLoading } = useAuth()
