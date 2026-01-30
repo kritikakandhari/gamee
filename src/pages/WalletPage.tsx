@@ -7,6 +7,7 @@ import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History } from 'luci
 import { PageLayout } from '@/components/layout/PageLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import { PaymentProcessors } from '@/components/payments/PaymentProcessors';
 
 
 export default function WalletPage() {
@@ -38,24 +39,23 @@ export default function WalletPage() {
 
     const [depositAmount, setDepositAmount] = useState<string>('25');
     const [selectedMethod, setSelectedMethod] = useState<'card' | 'paypal' | 'crypto'>('card');
-    const [submitting, setSubmitting] = useState(false);
 
     const presetAmounts = [10, 25, 50, 100];
 
-    const handleDeposit = async () => {
-        const amount = parseFloat(depositAmount);
-        if (isNaN(amount) || amount < 5) return;
-
+    const handlePaymentSuccess = async (details: any) => {
         try {
-            setSubmitting(true);
-            // Mock Deposit
-            await walletApi.addFunds(Math.round(amount * 100)); // Convert to cents
-            await fetchData(); // Refresh
-            setSubmitting(false);
+            const amount = parseFloat(depositAmount);
+            // Sync with Supabase Wallet Ledger
+            await walletApi.addFunds(Math.round(amount * 100));
+            await fetchData(); // Refresh balance
+            console.log('Payment Successful:', details);
         } catch (err) {
-            console.error(err);
-            setSubmitting(false);
+            console.error('Wallet sync error:', err);
         }
+    };
+
+    const handlePaymentError = (error: any) => {
+        console.error('Payment failed:', error);
     };
 
     const formatCurrency = (cents: number) => {
@@ -159,13 +159,18 @@ export default function WalletPage() {
                                 </div>
                             </div>
 
-                            <Button
-                                onClick={handleDeposit}
-                                disabled={submitting || !depositAmount || parseFloat(depositAmount) < 5}
-                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold h-12"
-                            >
-                                {submitting ? 'Processing...' : `Deposit $${depositAmount || '0.00'}`}
-                            </Button>
+                            {/* Real Payment Processor Integration */}
+                            <div className="pt-4 border-t border-white/10">
+                                <p className="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">
+                                    Secure Checkout {(selectedMethod === 'paypal' ? 'via PayPal' : 'via Stripe')}
+                                </p>
+                                <PaymentProcessors
+                                    amount={Math.round(parseFloat(depositAmount || '0') * 100)}
+                                    method={selectedMethod === 'crypto' ? 'paypal' : selectedMethod as 'paypal' | 'card'}
+                                    onSuccess={handlePaymentSuccess}
+                                    onError={handlePaymentError}
+                                />
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
