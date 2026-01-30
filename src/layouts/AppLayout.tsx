@@ -23,8 +23,8 @@ const navItems: NavItem[] = [
   { to: '/app/matches', label: 'Match Lobby', icon: Swords, color: 'text-blue-400' },
   { to: '/app/leaderboard', label: 'Leaderboards', icon: Trophy, color: 'text-yellow-400' },
   { to: '/app/insights', label: 'Game Insights', icon: Brain, color: 'text-pink-500' },
-  // { to: '/app/wallet', label: 'Wallet', icon: Wallet, color: 'text-green-400' }, // Moved to right side
-  // { to: '/app/profile', label: 'Profile', icon: User, color: 'text-pink-400' }, // Profile in right menu
+  { to: '/app/wallet', label: 'Wallet', icon: Wallet, color: 'text-green-400' },
+  { to: '/app/profile', label: 'Profile', icon: User, color: 'text-pink-400' },
 ];
 
 const FloatingParticles = () => {
