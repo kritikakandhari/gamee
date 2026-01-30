@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
 // import { LegalFooter } from '@/components/layout/LegalFooter'; // Kept imports
-import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe } from 'lucide-react';
+import { Home, Swords, Trophy, Menu, X, Wallet, Brain, ShieldAlert, Bell, Globe, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
