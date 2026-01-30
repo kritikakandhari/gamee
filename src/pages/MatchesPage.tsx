@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Clock, Plus, ShieldCheck, CheckCircle, XCircle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ const getStatusIcon = (status: string) => {
 };
 
 export default function MatchesPage() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -110,18 +112,18 @@ export default function MatchesPage() {
     if (match.match_type === 'DIRECT_CHALLENGE') {
       // Logic for opponent name might need adjustment based on how we fetch profiles
       // For now, simple fallback
-      return `Direct Challenge`;
+      return t('app.matches.card.directChallenge');
     }
     return `${match.match_type.replace('_', ' ')} - ${formatCurrency(match.stake_cents)}`;
   };
 
   const getMatchMeta = (match: Match) => {
-    const parts = [`Best of ${match.best_of}`];
+    const parts = [`${t('app.matches.card.bestOf')} ${match.best_of}`];
     if (match.status === 'COMPLETED' && match.winner_id === user?.id) {
-      parts.push('Won');
+      parts.push(t('app.matches.card.won'));
     } else if (match.status === 'COMPLETED') {
       // If completed but not won by self, assume lost for now (draws not handled yet)
-      parts.push('Lost');
+      parts.push(t('app.matches.card.lost'));
     }
     // if (match.completed_at) {
     //   parts.push(formatDate(match.completed_at));
@@ -130,34 +132,34 @@ export default function MatchesPage() {
   };
 
   if (!user) {
-    return <div className="text-center py-12 text-gray-400">Please log in to view your matches</div>;
+    return <div className="text-center py-12 text-gray-400">{t('app.matches.loginRequired')}</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-white">Matches</h1>
-          <p className="text-sm text-gray-400">Create, accept and track your 1v1 matches.</p>
+          <h1 className="text-xl font-semibold text-white">{t('app.matches.title')}</h1>
+          <p className="text-sm text-gray-400">{t('app.matches.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Dialog open={createMatchOpen} onOpenChange={setCreateMatchOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-gradient-to-r from-pink-500 to-purple-600">
                 <Plus className="h-4 w-4" />
-                Create Match
+                {t('app.discover.createMatch.button')}
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-gray-900 border-white/10 text-white">
               <DialogHeader>
-                <DialogTitle>Create New Match</DialogTitle>
+                <DialogTitle>{t('app.discover.createMatch.title')}</DialogTitle>
                 <DialogDescription className="text-gray-400">
-                  Set up a new competitive match
+                  {t('app.discover.createMatch.desc')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Match Type</Label>
+                  <Label>{t('app.discover.createMatch.type')}</Label>
                   <select
                     value={matchType}
                     onChange={(e) => setMatchType(e.target.value)}
@@ -169,7 +171,7 @@ export default function MatchesPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Stake (USD)</Label>
+                  <Label>{t('app.discover.createMatch.stake')}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -181,7 +183,7 @@ export default function MatchesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Best of (must be odd)</Label>
+                  <Label>{t('app.discover.createMatch.bestOf')}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -201,7 +203,7 @@ export default function MatchesPage() {
                   disabled={createMatchMutation.isPending}
                   className="w-full bg-gradient-to-r from-pink-500 to-purple-600"
                 >
-                  {createMatchMutation.isPending ? 'Creating...' : 'Create Match'}
+                  {createMatchMutation.isPending ? t('app.discover.createMatch.creating') : t('app.discover.createMatch.submit')}
                 </Button>
               </div>
             </DialogContent>
@@ -210,7 +212,7 @@ export default function MatchesPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-gray-400">Loading matches...</div>
+        <div className="text-center py-12 text-gray-400">{t('app.matches.loading')}</div>
       ) : matches && matches.length > 0 ? (
         <div className="grid gap-4">
           {matches.map((match: Match) => (
@@ -233,10 +235,10 @@ export default function MatchesPage() {
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <ShieldCheck className="h-3.5 w-3.5" />
-                    Anti-cheat enabled
+                    {t('app.matches.card.antiCheat')}
                   </span>
                   <span className="text-purple-300">
-                    Prize: {formatCurrency(match.total_pot_cents)}
+                    {t('app.matches.card.prize')} {formatCurrency(match.total_pot_cents)}
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -245,7 +247,7 @@ export default function MatchesPage() {
                     variant="outline"
                     onClick={() => navigate(`/app/matches/${match.id}`)}
                   >
-                    View
+                    {t('app.matches.card.view')}
                   </Button>
                   {match.status === 'ACCEPTED' && (
                     <Button
@@ -253,19 +255,19 @@ export default function MatchesPage() {
                       onClick={() => startMatchMutation.mutate(match.id)}
                       disabled={startMatchMutation.isPending}
                     >
-                      Start
+                      {t('app.matches.card.start')}
                     </Button>
                   )}
                   {match.status === 'IN_PROGRESS' && (
                     <Button
                       size="sm"
                       onClick={() => {
-                        if (confirm("Are you sure you want to claim victory? This will end the match and update rankings.")) {
+                        if (confirm(t('app.matches.card.confirmVictory'))) {
                           completeMatchMutation.mutate(match.id);
                         }
                       }}
                     >
-                      Claim Victory
+                      {t('app.matches.card.claimVictory')}
                     </Button>
                   )}
                 </div>
@@ -276,7 +278,7 @@ export default function MatchesPage() {
       ) : (
         <Card className="bg-white/5 border-white/10">
           <CardContent className="text-center py-12 text-gray-400">
-            No matches yet. Create your first match to get started!
+            {t('app.matches.empty')}
           </CardContent>
         </Card>
       )}

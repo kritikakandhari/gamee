@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Brain, Target, Swords, Zap, Lightbulb, BookOpen } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import type { TranslationKey } from '@/lib/translations';
 
 const GLOSSARY_TERMS = [
     { value: "50-50", label: "50/50" },
@@ -23,21 +25,8 @@ const GLOSSARY_TERMS = [
     { value: "cross-up", label: "Cross-up" },
 ];
 
-const GLOSSARY_DEFINITIONS: Record<string, string> = {
-    "50-50": "A situation where the offensive player has two main options (like overhead or low) that the defender must guess between, usually leading to a high-damage combo if guessed wrong.",
-    "abare": "A Japanese term meaning 'to violent' or 'rage'. It refers to attacking while maintaining a disadvantage, usually hoping to interrupt the opponent's pressure.",
-    "advantage": "Frame advantage. The difference in recovery time between two characters after a move connects or is blocked. Positive advantage means you recover first.",
-    "armor": "A property of a move that allows a character to absorb one or more hits from an opponent without being interrupted.",
-    "bnb": "Bread and Butter. A combo that is reliable, relatively easy to perform, and provides good damage or positioning. It's your go-to combo.",
-    "cancel": "Interrupting the animation of one move with another move, usually to create combos or make moves safer.",
-    "charge": "A character archetype that requires holding a direction (usually back or down) for a short time before pressing an attack button to perform special moves.",
-    "chip": "Damage taken when blocking special moves or super arts. Normal moves typically do not inflict chip damage.",
-    "command-throw": "A special move that grabs the opponent differently than a normal throw. They usually cannot be tech'd (escaped) and have different properties.",
-    "counter": "Hitting an opponent while they are in the startup or active frames of their own attack. usually awards bonus damage and frame advantage.",
-    "cross-up": "An attack (usually a jump-in) that hits the opponent on their other side, forcing them to switch blocking direction."
-};
-
 export default function InsightsPage() {
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('matchup');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
@@ -50,34 +39,31 @@ export default function InsightsPage() {
             setLoading(false);
             if (type === 'matchup') {
                 setResult({
-                    title: "Matchup Analysis: Ryu vs Ken",
-                    content: "Focus on punishing Ken's heavy dragon lash. Keep him at mid-range using fireballs to bait jump-ins, then anti-air with DP.",
-                    tips: ["Watch for drive rush overheads", "Punish heavy DP on block", "Neutral jump fireballs"]
+                    title: t('app.insights.mock.matchup.title'),
+                    content: t('app.insights.mock.matchup.content'),
+                    tips: [
+                        t('app.insights.mock.matchup.tip1'),
+                        t('app.insights.mock.matchup.tip2'),
+                        t('app.insights.mock.matchup.tip3')
+                    ]
                 });
             } else if (type === 'drills') {
                 setResult({
-                    title: "Anti-Air Reaction Drill",
-                    content: "Set dummy to random jump attack. Practice reacting with light DP. Goal: 10 in a row without trading.",
-                    difficulty: "Intermediate"
+                    title: t('app.insights.mock.drills.title'),
+                    content: t('app.insights.mock.drills.content'),
+                    difficulty: t('app.insights.diff.intermediate')
                 });
             } else if (type === 'archetype') {
                 setResult({
-                    title: "Archetype: Shoto",
-                    content: "Balanced toolkit with good fireballs and reliable anti-airs. Excels at controlling space and punishing mistakes.",
-                    pros: ["Versatile", "Good Defense"],
-                    cons: ["Predictable", "Honest"]
+                    title: t('app.insights.mock.archetype.title'),
+                    content: t('app.insights.mock.archetype.content'),
+                    pros: [t('app.insights.mock.archetype.pro1'), t('app.insights.mock.archetype.pro2')],
+                    cons: [t('app.insights.mock.archetype.con1'), t('app.insights.mock.archetype.con2')]
                 });
             } else if (type === 'glossary') {
-                // For glossary, we pull directly from our dictionary
-                // We'll use the 'result' state just to reuse the display component logic, 
-                // but normally this might be instant.
-                // const termKey = (document.getElementById('glossary-select') as HTMLSelectElement)?.value || '50-50';
-                // Mocking finding the value from a real select state would be better, but simplest way for now:
-                // Actually, let's grab the value from a state we need to add, or just random/hardcode for this 'generate' pattern:
-                // BUT better is to use a state for the selected glossary term.
                 setResult({
-                    title: "Definition",
-                    content: "Select a term to define."
+                    title: t('app.insights.glossary.title'),
+                    content: t('app.insights.glossary.instruction')
                 });
             }
         }, 1500);
@@ -87,9 +73,13 @@ export default function InsightsPage() {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
+            // Construct the key dynamically. 
+            // We know our terms match the keys 'app.glossary.[term]'
+            const key = `app.glossary.${term}` as TranslationKey;
+
             setResult({
                 title: GLOSSARY_TERMS.find(t => t.value === term)?.label || "Term",
-                content: GLOSSARY_DEFINITIONS[term] || "Definition not found."
+                content: t(key) || "Definition not found."
             });
         }, 500);
     };
@@ -104,26 +94,27 @@ export default function InsightsPage() {
                         className="text-3xl font-bold text-white flex items-center gap-3"
                     >
                         <Brain className="h-8 w-8 text-purple-400" />
-                        Game Insights
+                        {t('app.insights.title')}
                     </motion.h1>
                     <p className="text-gray-400 mt-2">
-                        Level up your gameplay with AI-powered analysis tools.
+                        {/* Level up your gameplay with AI-powered analysis tools. */}
+                        {t('app.insights.subtitle')}
                     </p>
                 </div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="bg-white/5 border border-white/10 p-1 grid grid-cols-4 w-full">
                         <TabsTrigger value="matchup" className="data-[state=active]:bg-purple-600">
-                            <Swords className="h-4 w-4 mr-2" /> Matchup
+                            <Swords className="h-4 w-4 mr-2" /> {t('app.insights.tabs.matchup')}
                         </TabsTrigger>
                         <TabsTrigger value="drills" className="data-[state=active]:bg-pink-600">
-                            <Target className="h-4 w-4 mr-2" /> Drills
+                            <Target className="h-4 w-4 mr-2" /> {t('app.insights.tabs.drills')}
                         </TabsTrigger>
                         <TabsTrigger value="archetype" className="data-[state=active]:bg-blue-600">
-                            <Lightbulb className="h-4 w-4 mr-2" /> Archetypes
+                            <Lightbulb className="h-4 w-4 mr-2" /> {t('app.insights.tabs.archetypes')}
                         </TabsTrigger>
                         <TabsTrigger value="glossary" className="data-[state=active]:bg-green-600">
-                            <BookOpen className="h-4 w-4 mr-2" /> Glossary
+                            <BookOpen className="h-4 w-4 mr-2" /> {t('app.insights.tabs.glossary')}
                         </TabsTrigger>
                     </TabsList>
 
@@ -133,17 +124,17 @@ export default function InsightsPage() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Zap className="h-5 w-5 text-yellow-400" />
-                                    Matchup Strategy Advisor
+                                    {t('app.insights.matchup.title')}
                                 </CardTitle>
-                                <CardDescription>Get strategic advice for a 1v1 matchup.</CardDescription>
+                                <CardDescription>{t('app.insights.matchup.desc')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Game</Label>
+                                        <Label>{t('app.insights.game')}</Label>
                                         <Select defaultValue="sf6">
                                             <SelectTrigger className="bg-black/20 border-white/10">
-                                                <SelectValue placeholder="Select Game" />
+                                                <SelectValue placeholder={t('app.insights.selectGame')} />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="sf6">Street Fighter 6</SelectItem>
@@ -153,12 +144,12 @@ export default function InsightsPage() {
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Your Character</Label>
-                                        <Input placeholder="e.g. Ryu" className="bg-black/20 border-white/10" />
+                                        <Label>{t('app.insights.yourChar')}</Label>
+                                        <Input placeholder={t('app.insights.selectChar') || "e.g. Ryu"} className="bg-black/20 border-white/10" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Opponent's Character</Label>
-                                        <Input placeholder="e.g. Ken" className="bg-black/20 border-white/10" />
+                                        <Label>{t('app.insights.opponentChar')}</Label>
+                                        <Input placeholder={t('app.insights.selectChar') || "e.g. Ken"} className="bg-black/20 border-white/10" />
                                     </div>
                                 </div>
                                 <Button
@@ -166,7 +157,7 @@ export default function InsightsPage() {
                                     disabled={loading}
                                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600"
                                 >
-                                    {loading ? "Analyzing..." : "Get Strategy Advice"}
+                                    {loading ? t('app.insights.analyzing') : t('app.insights.getAdvice')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -178,17 +169,17 @@ export default function InsightsPage() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Target className="h-5 w-5 text-green-400" />
-                                    Training Drill Suggestions
+                                    {t('app.insights.drills.title')}
                                 </CardTitle>
-                                <CardDescription>Receive personalized training drills.</CardDescription>
+                                <CardDescription>{t('app.insights.drills.desc')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Game</Label>
+                                        <Label>{t('app.insights.game')}</Label>
                                         <Select defaultValue="sf6">
                                             <SelectTrigger className="bg-black/20 border-white/10">
-                                                <SelectValue placeholder="Select Game" />
+                                                <SelectValue placeholder={t('app.insights.selectGame')} />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="sf6">Street Fighter 6</SelectItem>
@@ -197,16 +188,16 @@ export default function InsightsPage() {
                                         </Select>
                                     </div>
                                     <div className="space-y-3">
-                                        <Label>Difficulty</Label>
+                                        <Label>{t('app.insights.difficulty')}</Label>
                                         <div className="flex items-center gap-4">
                                             <label className="flex items-center gap-2 text-sm text-gray-300">
-                                                <input type="radio" name="diff" className="accent-pink-500" /> Beginner
+                                                <input type="radio" name="diff" className="accent-pink-500" /> {t('app.insights.diff.beginner')}
                                             </label>
                                             <label className="flex items-center gap-2 text-sm text-gray-300">
-                                                <input type="radio" name="diff" className="accent-pink-500" defaultChecked /> Intermediate
+                                                <input type="radio" name="diff" className="accent-pink-500" defaultChecked /> {t('app.insights.diff.intermediate')}
                                             </label>
                                             <label className="flex items-center gap-2 text-sm text-gray-300">
-                                                <input type="radio" name="diff" className="accent-pink-500" /> Advanced
+                                                <input type="radio" name="diff" className="accent-pink-500" /> {t('app.insights.diff.advanced')}
                                             </label>
                                         </div>
                                     </div>
@@ -216,7 +207,7 @@ export default function InsightsPage() {
                                     disabled={loading}
                                     className="w-full bg-gradient-to-r from-pink-600 to-purple-600"
                                 >
-                                    {loading ? "Generating..." : "Get Training Drills"}
+                                    {loading ? t('app.insights.generating') : t('app.insights.getDrills')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -228,17 +219,17 @@ export default function InsightsPage() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Lightbulb className="h-5 w-5 text-blue-400" />
-                                    Character Archetype Analysis
+                                    {t('app.insights.archetype.title')}
                                 </CardTitle>
-                                <CardDescription>Understand common playstyles for any character.</CardDescription>
+                                <CardDescription>{t('app.insights.archetype.desc')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Game</Label>
+                                        <Label>{t('app.insights.game')}</Label>
                                         <Select defaultValue="sf6">
                                             <SelectTrigger className="bg-black/20 border-white/10">
-                                                <SelectValue placeholder="Select Game" />
+                                                <SelectValue placeholder={t('app.insights.selectGame')} />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="sf6">Street Fighter 6</SelectItem>
@@ -247,8 +238,8 @@ export default function InsightsPage() {
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Character to Analyze</Label>
-                                        <Input placeholder="Select character" className="bg-black/20 border-white/10" />
+                                        <Label>{t('app.insights.charToAnalyze')}</Label>
+                                        <Input placeholder={t('app.insights.selectChar')} className="bg-black/20 border-white/10" />
                                     </div>
                                 </div>
                                 <Button
@@ -256,7 +247,7 @@ export default function InsightsPage() {
                                     disabled={loading}
                                     className="w-full bg-gradient-to-r from-blue-600 to-cyan-600"
                                 >
-                                    {loading ? "Analyzing..." : "Get Archetype Analysis"}
+                                    {loading ? t('app.insights.analyzing') : t('app.insights.getArchetype')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -268,16 +259,16 @@ export default function InsightsPage() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <BookOpen className="h-5 w-5 text-green-400" />
-                                    Fighting Game Glossary
+                                    {t('app.insights.glossary.title')}
                                 </CardTitle>
-                                <CardDescription>Master the terminology of the FGC.</CardDescription>
+                                <CardDescription>{t('app.insights.glossary.desc')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label>Select a Term</Label>
+                                    <Label>{t('app.insights.selectTerm')}</Label>
                                     <Select onValueChange={handleDefine}>
                                         <SelectTrigger className="bg-black/20 border-white/10">
-                                            <SelectValue placeholder="Select a common term..." />
+                                            <SelectValue placeholder={t('app.insights.selectTermPlaceholder')} />
                                         </SelectTrigger>
                                         <SelectContent className="max-h-[300px]">
                                             {GLOSSARY_TERMS.map(term => (
@@ -287,8 +278,7 @@ export default function InsightsPage() {
                                     </Select>
                                 </div>
                                 <div className="p-4 bg-black/40 rounded-lg border border-white/5 min-h-[100px] flex items-center justify-center text-gray-400 text-sm">
-                                    {result && activeTab === 'glossary' ? null : "Select a term above to see its definition."}
-                                    {/* Result is handled by main result area, but we can also show placeholder here */}
+                                    {result && activeTab === 'glossary' ? null : t('app.insights.glossary.instruction')}
                                 </div>
                             </CardContent>
                         </Card>
@@ -308,12 +298,29 @@ export default function InsightsPage() {
 
                             {result.tips && (
                                 <div className="space-y-2">
-                                    <h4 className="font-semibold text-purple-400">Key Tips:</h4>
+                                    <h4 className="font-semibold text-purple-400">{t('app.insights.result.keyTips')}</h4>
                                     <ul className="list-disc list-inside text-sm text-gray-400">
                                         {result.tips.map((tip: string, i: number) => (
                                             <li key={i}>{tip}</li>
                                         ))}
                                     </ul>
+                                </div>
+                            )}
+
+                            {result.pros && (
+                                <div className="grid grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <h4 className="font-semibold text-green-400 mb-1">Pros</h4>
+                                        <ul className="list-disc list-inside text-sm text-gray-400">
+                                            {result.pros.map((p: string, i: number) => <li key={i}>{p}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-red-400 mb-1">Cons</h4>
+                                        <ul className="list-disc list-inside text-sm text-gray-400">
+                                            {result.cons.map((c: string, i: number) => <li key={i}>{c}</li>)}
+                                        </ul>
+                                    </div>
                                 </div>
                             )}
                         </div>

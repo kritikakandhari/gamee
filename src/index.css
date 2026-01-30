@@ -5,14 +5,14 @@
 @tailwind utilities;
 
 :root {
-  --primary: 180 100% 50%;
-  /* Cyan from logo "MONEY" */
+  --primary: 186 76% 48%;
+  /* Cyan #22d3ee */
   --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 270 95% 65%;
-  /* Purple from logo "MATCH" */
+  --secondary: 271 91% 65%;
+  /* Purple #a855f7 */
   --secondary-foreground: 210 40% 98%;
-  --accent: 180 100% 50%;
-  /* Cyan accent */
+  --accent: 42 96% 56%;
+  /* Gold #fbbf24 */
   --accent-foreground: 222.2 47.4% 11.2%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
@@ -136,36 +136,37 @@
 /* Dark mode overrides */
 /* Dark mode overrides */
 .dark {
-  --background: 222.2 19% 16%;
-  /* Slate Gray */
+  --background: 222.2 47% 11%;
+  /* Dark Slate #0f172a */
   --foreground: 210 40% 98%;
 
-  --primary: 180 100% 50%;
-  /* Keep Cyan Brand */
+  --primary: 186 76% 48%;
+  /* Cyan #22d3ee */
   --primary-foreground: 222.2 47.4% 11.2%;
 
-  --secondary: 217.2 32.6% 17.5%;
+  --secondary: 271 91% 65%;
+  /* Purple #a855f7 */
   --secondary-foreground: 210 40% 98%;
 
-  --accent: 45 93% 47%;
-  /* Gold Accent */
+  --accent: 42 96% 56%;
+  /* Gold #fbbf24 */
   --accent-foreground: 222.2 47.4% 11.2%;
   /* Dark text on gold */
 
   --muted: 217.2 32.6% 17.5%;
   --muted-foreground: 215 20.2% 65.1%;
 
-  --card: 222.2 19% 20%;
+  --card: 222.2 47% 13%;
   /* Slightly lighter than bg */
   --card-foreground: 210 40% 98%;
 
-  --popover: 222.2 19% 20%;
+  --popover: 222.2 47% 13%;
   --popover-foreground: 210 40% 98%;
 
   --border: 217.2 32.6% 25%;
   /* Visible borders */
   --input: 217.2 32.6% 25%;
-  --ring: 180 100% 50%;
+  --ring: 186 76% 48%;
 }
 
 /* Custom utilities */

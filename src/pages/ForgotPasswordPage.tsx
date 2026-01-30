@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { PageLayout } from '@/components/layout/PageLayout';
 
 export default function ForgotPasswordPage() {
+    const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -29,7 +31,7 @@ export default function ForgotPasswordPage() {
 
             setIsSuccess(true);
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to send reset email';
+            const message = err instanceof Error ? err.message : t('auth.error');
             setError(message);
         } finally {
             setIsSubmitting(false);
@@ -50,7 +52,7 @@ export default function ForgotPasswordPage() {
                         className="mb-6 -ml-2 text-purple-200 hover:bg-white/10 cursor-pointer"
                     >
                         <Link to="/login">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login
+                            <ArrowLeft className="mr-2 h-4 w-4" /> {t('auth.link.backToLogin')}
                         </Link>
                     </Button>
 
@@ -65,8 +67,8 @@ export default function ForgotPasswordPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
                             >
-                                <h1 className="text-3xl font-bold tracking-tight text-white">Reset Password</h1>
-                                <p className="mt-2 text-purple-200/80">Enter your email and we'll send you a recovery link</p>
+                                <h1 className="text-3xl font-bold tracking-tight text-white">{t('auth.forgotPassword.title')}</h1>
+                                <p className="mt-2 text-purple-200/80">{t('auth.forgotPassword.desc')}</p>
                             </motion.div>
 
                             {isSuccess ? (
@@ -80,9 +82,9 @@ export default function ForgotPasswordPage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
                                     </div>
-                                    <h3 className="mb-2 text-lg font-medium text-white">Check your email</h3>
+                                    <h3 className="mb-2 text-lg font-medium text-white">{t('auth.forgotPassword.successTitle')}</h3>
                                     <p className="text-purple-200/80">
-                                        We've sent a password reset link to <span className="font-semibold text-white">{email}</span>
+                                        {t('auth.forgotPassword.successDesc')} <span className="font-semibold text-white">{email}</span>
                                     </p>
                                 </motion.div>
                             ) : (
@@ -93,7 +95,7 @@ export default function ForgotPasswordPage() {
                                         transition={{ delay: 0.2 }}
                                         className="space-y-2"
                                     >
-                                        <Label htmlFor="email" className="text-purple-200/90">Email</Label>
+                                        <Label htmlFor="email" className="text-purple-200/90">{t('auth.email.label')}</Label>
                                         <Input
                                             id="email"
                                             type="email"
@@ -126,7 +128,7 @@ export default function ForgotPasswordPage() {
                                             className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg shadow-pink-500/20 transition-all hover:shadow-pink-500/40"
                                             disabled={isSubmitting}
                                         >
-                                            {isSubmitting ? 'Sending Request...' : 'Send Reset Link'}
+                                            {isSubmitting ? t('common.loading') : t('auth.forgotPassword.button')}
                                         </Button>
                                     </motion.div>
                                 </form>

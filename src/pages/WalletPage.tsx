@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 
 export default function WalletPage() {
+    const { t } = useLanguage();
     const { user } = useAuth();
     const [wallet, setWallet] = useState<Wallet | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -48,9 +50,9 @@ export default function WalletPage() {
             <div className="space-y-6">
                 <div className="flex flex-col gap-2">
                     <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400">
-                        My Wallet
+                        {t('app.wallet.title')}
                     </h1>
-                    <p className="text-gray-400">Manage your funds and transactions.</p>
+                    <p className="text-gray-400">{t('app.wallet.subtitle')}</p>
                 </div>
 
                 {/* Balance Card */}
@@ -58,7 +60,7 @@ export default function WalletPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-white">
                             <WalletIcon className="h-5 w-5 text-purple-400" />
-                            Current Balance
+                            {t('app.wallet.balanceTitle')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -67,14 +69,14 @@ export default function WalletPage() {
                                 <div className="text-4xl font-bold text-white tracking-tight">
                                     {loading ? '...' : formatCurrency(wallet?.balance_cents || 0)}
                                 </div>
-                                <p className="text-sm text-gray-400 mt-1">Available for matches</p>
+                                <p className="text-sm text-gray-400 mt-1">{t('app.wallet.available')}</p>
                             </div>
                             <Button
                                 onClick={handleDeposit}
                                 className="bg-gradient-to-r from-green-500 to-emerald-600 text-white"
                             >
                                 <ArrowDownLeft className="mr-2 h-4 w-4" />
-                                Add $100 (Test)
+                                {t('app.wallet.addFundsTest')}
                             </Button>
                         </div>
                     </CardContent>
@@ -84,12 +86,12 @@ export default function WalletPage() {
                 <div>
                     <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                         <History className="h-5 w-5" />
-                        Recent Transactions
+                        {t('app.wallet.recentTransactions')}
                     </h2>
                     <div className="space-y-3">
                         {!loading && transactions.length === 0 && (
                             <div className="text-center py-8 text-gray-500 bg-white/5 rounded-lg border border-white/5">
-                                No transactions yet.
+                                {t('app.wallet.noTransactions')}
                             </div>
                         )}
                         {transactions.map((tx) => (

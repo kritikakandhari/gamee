@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { PageLayout } from '@/components/layout/PageLayout';
 
 export default function ResetPasswordPage() {
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,9 +41,9 @@ export default function ResetPasswordPage() {
             if (updateError) throw updateError;
 
             // Success - redirect to login or dashboard
-            navigate('/login', { state: { message: 'Password updated successfully. Please sign in.' } });
+            navigate('/login', { state: { message: t('auth.resetPassword.success') } });
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to update password';
+            const message = err instanceof Error ? err.message : t('auth.error');
             setError(message);
         } finally {
             setIsSubmitting(false);
@@ -67,8 +69,8 @@ export default function ResetPasswordPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
                             >
-                                <h1 className="text-3xl font-bold tracking-tight text-white">Set New Password</h1>
-                                <p className="mt-2 text-purple-200/80">Enter your new secure password below</p>
+                                <h1 className="text-3xl font-bold tracking-tight text-white">{t('auth.resetPassword.title')}</h1>
+                                <p className="mt-2 text-purple-200/80">{t('auth.resetPassword.desc')}</p>
                             </motion.div>
 
                             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -78,7 +80,7 @@ export default function ResetPasswordPage() {
                                     transition={{ delay: 0.2 }}
                                     className="space-y-2"
                                 >
-                                    <Label htmlFor="password" className="text-purple-200/90">New Password</Label>
+                                    <Label htmlFor="password" className="text-purple-200/90">{t('auth.password.label')}</Label>
                                     <Input
                                         id="password"
                                         type="password"
@@ -87,7 +89,7 @@ export default function ResetPasswordPage() {
                                         className="bg-white/5 border-white/20 text-white placeholder:text-purple-200/50 focus:border-pink-400/50 focus-visible:ring-pink-500/50"
                                         required
                                         minLength={6}
-                                        placeholder="Min 6 characters"
+                                        placeholder="********"
                                     />
                                 </motion.div>
 
@@ -112,7 +114,7 @@ export default function ResetPasswordPage() {
                                         className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg shadow-pink-500/20 transition-all hover:shadow-pink-500/40"
                                         disabled={isSubmitting}
                                     >
-                                        {isSubmitting ? 'Updating...' : 'Update Password'}
+                                        {isSubmitting ? t('common.loading') : t('auth.resetPassword.button')}
                                     </Button>
                                 </motion.div>
                             </form>

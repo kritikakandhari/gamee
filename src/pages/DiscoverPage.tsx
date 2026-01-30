@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, Swords, Trophy, Zap, Users, Clock, Plus, Play, ShieldAlert } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,14 +17,8 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { useAuth } from '@/auth/AuthProvider';
 import { matchesApi } from '@/lib/matches';
 
-const stats = [
-  { name: 'Active Players', value: '2,543', icon: Users, change: '+12%', changeType: 'positive' },
-  { name: 'Matches Today', value: '1,287', icon: Swords, change: '+8%', changeType: 'positive' },
-  { name: 'Avg. Queue Time', value: '23s', icon: Clock, change: '-5%', changeType: 'negative' },
-  { name: 'Win Rate', value: '64%', icon: Trophy, change: '+2%', changeType: 'positive' },
-];
-
 export default function DiscoverPage() {
+  const { t } = useLanguage();
   const { isRestricted } = useGeoLocation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -42,6 +37,13 @@ export default function DiscoverPage() {
   const [matchType, setMatchType] = useState('QUICK_DUEL');
   const [stakeCents, setStakeCents] = useState(0); // Default to 0 / free for now or user input
   const [bestOf, setBestOf] = useState(3);
+
+  const stats = [
+    { name: t('app.discover.stats.players'), value: '2,543', icon: Users, change: '+12%', changeType: 'positive' },
+    { name: t('app.discover.stats.matches'), value: '1,287', icon: Swords, change: '+8%', changeType: 'positive' },
+    { name: t('app.discover.stats.queue'), value: '23s', icon: Clock, change: '-5%', changeType: 'negative' },
+    { name: t('app.discover.stats.winRate'), value: '64%', icon: Trophy, change: '+2%', changeType: 'positive' },
+  ];
 
   // Fetch matches (Real Supabase Data)
   const { data: matchesWrapper, isLoading: matchesLoading } = useQuery({
@@ -119,7 +121,7 @@ export default function DiscoverPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              Find Your Next Match
+              {t('app.discover.title')}
             </motion.h1>
             <motion.p
               className="mt-3 max-w-2xl text-lg text-purple-200/90"
@@ -127,7 +129,7 @@ export default function DiscoverPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              Compete in skill-based matches, join tournaments, and climb the leaderboards.
+              {t('app.discover.subtitle')}
             </motion.p>
 
             {isRestricted && (
@@ -138,7 +140,7 @@ export default function DiscoverPage() {
               >
                 <ShieldAlert className="h-5 w-5 text-red-400" />
                 <span className="text-sm">
-                  <span className="font-bold">Region Restricted:</span> Paid matches are not available in your current location.
+                  <span className="font-bold">Region Restricted:</span> {t('app.discover.regionRestricted').split(':')[1]}
                 </span>
               </motion.div>
             )}
@@ -153,21 +155,20 @@ export default function DiscoverPage() {
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-purple-400" />
                 <Input
                   className="h-12 bg-white/5 border-white/10 pl-10 text-white placeholder:text-purple-200/50 focus:border-pink-400/50 focus-visible:ring-pink-500/50"
-                  placeholder="Search by player or lobby rules..."
+                  placeholder={t('app.discover.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
               {/* LOBBY FILTERS ROW */}
-              {/* LOBBY FILTERS ROW */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full mt-4">
                 <Select value={filterGame} onValueChange={setFilterGame}>
                   <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
-                    <SelectValue placeholder="All Games" />
+                    <SelectValue placeholder={t('app.discover.filter.game')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Games</SelectItem>
+                    <SelectItem value="all">{t('app.discover.filter.game')}</SelectItem>
                     <SelectItem value="SF6">Street Fighter 6</SelectItem>
                     <SelectItem value="T8">Tekken 8</SelectItem>
                     <SelectItem value="MK1">Mortal Kombat 1</SelectItem>
@@ -186,10 +187,10 @@ export default function DiscoverPage() {
 
                 <Select value={filterRegion} onValueChange={setFilterRegion}>
                   <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
-                    <SelectValue placeholder="Any Region" />
+                    <SelectValue placeholder={t('app.discover.filter.region')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Any Region</SelectItem>
+                    <SelectItem value="all">{t('app.discover.filter.region')}</SelectItem>
                     <SelectItem value="NA">North America</SelectItem>
                     <SelectItem value="EU">Europe</SelectItem>
                     <SelectItem value="ASIA">Asia</SelectItem>
@@ -199,10 +200,10 @@ export default function DiscoverPage() {
 
                 <Select value={filterPlatform} onValueChange={setFilterPlatform}>
                   <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
-                    <SelectValue placeholder="All Platforms" />
+                    <SelectValue placeholder={t('app.discover.filter.platform')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Platforms</SelectItem>
+                    <SelectItem value="all">{t('app.discover.filter.platform')}</SelectItem>
                     <SelectItem value="PC">PC</SelectItem>
                     <SelectItem value="PS5">PlayStation 5</SelectItem>
                     <SelectItem value="XBOX">Xbox Series X|S</SelectItem>
@@ -211,10 +212,10 @@ export default function DiscoverPage() {
 
                 <Select value={filterRank} onValueChange={setFilterRank}>
                   <SelectTrigger className="bg-black/20 border-white/10 text-gray-300">
-                    <SelectValue placeholder="All Ranks" />
+                    <SelectValue placeholder={t('app.discover.filter.rank')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Ranks</SelectItem>
+                    <SelectItem value="all">{t('app.discover.filter.rank')}</SelectItem>
                     <SelectItem value="pro">Pro Contender</SelectItem>
                     <SelectItem value="new">New Challenger</SelectItem>
                   </SelectContent>
@@ -228,19 +229,19 @@ export default function DiscoverPage() {
                     size="lg"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Create Match
+                    {t('app.discover.createMatch.button')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-gray-900 border-white/10 text-white">
                   <DialogHeader>
-                    <DialogTitle>Create New Match</DialogTitle>
+                    <DialogTitle>{t('app.discover.createMatch.title')}</DialogTitle>
                     <DialogDescription className="text-gray-400">
-                      Set up a new competitive match
+                      {t('app.discover.createMatch.desc')}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Match Type</Label>
+                      <Label>{t('app.discover.createMatch.type')}</Label>
                       <select
                         value={matchType}
                         onChange={(e) => setMatchType(e.target.value)}
@@ -252,7 +253,7 @@ export default function DiscoverPage() {
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Stake (USD)</Label>
+                      <Label>{t('app.discover.createMatch.stake')}</Label>
                       <Input
                         type="number"
                         min="1"
@@ -264,7 +265,7 @@ export default function DiscoverPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Best of (must be odd)</Label>
+                      <Label>{t('app.discover.createMatch.bestOf')}</Label>
                       <Input
                         type="number"
                         min="1"
@@ -284,7 +285,7 @@ export default function DiscoverPage() {
                       disabled={createMatchMutation.isPending}
                       className="w-full bg-gradient-to-r from-pink-500 to-purple-600"
                     >
-                      {createMatchMutation.isPending ? 'Creating...' : 'Create Match'}
+                      {createMatchMutation.isPending ? t('app.discover.createMatch.creating') : t('app.discover.createMatch.submit')}
                     </Button>
                   </div>
                 </DialogContent>
@@ -331,24 +332,23 @@ export default function DiscoverPage() {
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500/20 data-[state=active]:to-purple-600/20 data-[state=active]:text-white data-[state=active]:border-pink-500/50 flex items-center gap-2"
             >
               <Swords className="h-4 w-4" />
-              Open Matches
+              {t('app.discover.tabs.open')}
             </TabsTrigger>
             <TabsTrigger
               value="featured"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500/20 data-[state=active]:to-purple-600/20 data-[state=active]:text-white data-[state=active]:border-pink-500/50 flex items-center gap-2"
             >
               <Trophy className="h-4 w-4" />
-              Featured
+              {t('app.discover.tabs.featured')}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="open" className="mt-6">
             {matchesLoading ? (
-              <div className="text-center py-12 text-gray-400">Loading matches...</div>
+              <div className="text-center py-12 text-gray-400">{t('common.loading')}</div>
             ) : matches && matches.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {matches
-                  // .filter((m: Match) => m.created_by !== user?.id) // user: Show own matches for now
                   .map((match) => (
                     <motion.div
                       key={match.id}
@@ -365,40 +365,40 @@ export default function DiscoverPage() {
                             {match.match_type.includes('SF6') ? 'Street Fighter 6' : 'Tekken 8'}
                           </h3>
                           <div className="flex gap-2">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30">Open</Badge>
-                            <Badge variant="outline" className="border-white/20 text-gray-400">Public</Badge>
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30">{t('app.discover.match.open')}</Badge>
+                            <Badge variant="outline" className="border-white/20 text-gray-400">{t('app.discover.match.public')}</Badge>
                           </div>
                         </div>
 
                         {/* Player Info - Mocked for UI match */}
                         <div className="space-y-2 mb-6">
                           <div className="flex items-center gap-2 text-sm text-gray-300">
-                            <span className="text-gray-500">Challenger:</span>
+                            <span className="text-gray-500">{t('app.discover.match.challenger')}</span>
                             <span className="font-semibold text-white">Player_One</span>
                             <Badge variant="secondary" className="text-[10px] h-5 bg-yellow-500/10 text-yellow-400 border-yellow-500/20">Top 500</Badge>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-300">
-                            <span className="text-gray-500">Reputation:</span>
+                            <span className="text-gray-500">{t('app.discover.match.reputation')}</span>
                             <span className="text-green-400 font-mono">100%</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-300">
-                            <span className="text-gray-500">Platform:</span>
+                            <span className="text-gray-500">{t('app.discover.match.platform')}</span>
                             <span className="text-white">PC</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-300">
-                            <span className="text-gray-500">Posted:</span>
-                            <span className="text-gray-400">Today</span>
+                            <span className="text-gray-500">{t('app.discover.match.posted')}</span>
+                            <span className="text-gray-400">{t('app.discover.match.today')}</span>
                           </div>
                         </div>
 
                         {/* Stakes & Action */}
                         <div className="bg-black/20 rounded-xl p-4 border border-white/5 mt-auto">
                           <div className="flex justify-between items-center mb-3">
-                            <span className="text-sm text-purple-200/70">Stake</span>
+                            <span className="text-sm text-purple-200/70">{t('app.discover.match.stake')}</span>
                             <span className="text-xl font-bold text-white">{formatCurrency(match.stake_cents)}</span>
                           </div>
                           <div className="flex justify-between items-center mb-4">
-                            <span className="text-sm text-purple-200/70">Payout</span>
+                            <span className="text-sm text-purple-200/70">{t('app.discover.match.payout')}</span>
                             <span className="text-lg font-mono text-green-400">~{formatCurrency(match.stake_cents * 1.8)}</span>
                           </div>
 
@@ -408,7 +408,7 @@ export default function DiscoverPage() {
                             disabled={acceptMatchMutation.isPending}
                           >
                             <Swords className="mr-2 h-4 w-4" />
-                            {acceptMatchMutation.isPending ? 'Joining...' : 'Fight Now'}
+                            {acceptMatchMutation.isPending ? t('app.discover.match.joining') : t('app.discover.match.fight')}
                           </Button>
                         </div>
                       </div>
@@ -425,8 +425,8 @@ export default function DiscoverPage() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10">
                     <Zap className="h-8 w-8 text-blue-400" />
                   </div>
-                  <h2 className="mt-4 text-2xl font-bold text-white">No Open Matches</h2>
-                  <p className="mt-2 text-blue-200/80">Be the first to create a match!</p>
+                  <h2 className="mt-4 text-2xl font-bold text-white">{t('app.discover.empty.title')}</h2>
+                  <p className="mt-2 text-blue-200/80">{t('app.discover.empty.desc')}</p>
                 </div>
               </motion.div>
             )}

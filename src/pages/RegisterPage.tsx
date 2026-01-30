@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { PageLayout } from '@/components/layout/PageLayout';
 
 export default function RegisterPage() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -46,7 +48,7 @@ export default function RegisterPage() {
       }
     } catch (err) {
       // Supabase errors
-      const message = err instanceof Error ? err.message : 'An error occurred during sign up.';
+      const message = err instanceof Error ? err.message : t('auth.error');
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -81,7 +83,7 @@ export default function RegisterPage() {
             className="mb-6 -ml-2 text-purple-200 hover:bg-white/10"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            <ArrowLeft className="mr-2 h-4 w-4" /> {t('landing.cta.learnMore').split(' ')[0]} {/* Back */}
           </Button>
 
           <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-8 shadow-2xl">
@@ -95,8 +97,8 @@ export default function RegisterPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <h1 className="text-3xl font-bold tracking-tight text-white">Create Account</h1>
-                <p className="mt-2 text-purple-200/80">Join the ultimate 1v1 competitive platform</p>
+                <h1 className="text-3xl font-bold tracking-tight text-white">{t('auth.register.title')}</h1>
+                <p className="mt-2 text-purple-200/80">{t('auth.register.desc')}</p>
               </motion.div>
 
               <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -106,7 +108,7 @@ export default function RegisterPage() {
                   transition={{ delay: 0.2 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="username" className="text-purple-200/90">Username</Label>
+                  <Label htmlFor="username" className="text-purple-200/90">{t('auth.username.label')}</Label>
                   <Input
                     id="username"
                     value={username}
@@ -124,7 +126,7 @@ export default function RegisterPage() {
                   transition={{ delay: 0.3 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="displayName" className="text-purple-200/90">Display Name (Optional)</Label>
+                  <Label htmlFor="displayName" className="text-purple-200/90">{t('auth.displayName.label')}</Label>
                   <Input
                     id="displayName"
                     value={displayName}
@@ -140,7 +142,7 @@ export default function RegisterPage() {
                   transition={{ delay: 0.4 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="email" className="text-purple-200/90">Email</Label>
+                  <Label htmlFor="email" className="text-purple-200/90">{t('auth.email.label')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -159,7 +161,7 @@ export default function RegisterPage() {
                   className="space-y-2"
                 >
                   <Label htmlFor="password" className="text-purple-200/90">
-                    Password <span className="text-xs text-purple-200/60">(min 8 characters)</span>
+                    {t('auth.password.label')}
                   </Label>
                   <Input
                     id="password"
@@ -169,7 +171,6 @@ export default function RegisterPage() {
                     className="bg-white/5 border-white/20 text-white placeholder:text-purple-200/50 focus:border-pink-400/50 focus-visible:ring-pink-500/50"
                     required
                     minLength={8}
-                    placeholder="At least 8 characters"
                   />
                 </motion.div>
 
@@ -178,6 +179,8 @@ export default function RegisterPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="rounded-md bg-red-500/10 p-3 text-sm text-red-400"
+                    role="alert"
+                    aria-live="polite"
                   >
                     {error}
                   </motion.div>
@@ -213,10 +216,10 @@ export default function RegisterPage() {
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           />
                         </svg>
-                        Creating Account...
+                        {t('common.loading')}
                       </span>
                     ) : (
-                      'Create Account'
+                      t('auth.register.button')
                     )}
                   </Button>
                 </motion.div>
@@ -228,12 +231,12 @@ export default function RegisterPage() {
                 transition={{ delay: 0.7 }}
                 className="mt-6 text-center text-sm text-purple-200/70"
               >
-                Already have an account?{' '}
+                {t('auth.link.hasAccount').split('?')[0]}?{' '}
                 <Link
                   to="/login"
                   className="font-medium text-pink-400 hover:text-pink-300 hover:underline"
                 >
-                  Sign in
+                  {t('auth.link.hasAccount').split('?')[1]?.trim() || t('auth.login.button')}
                 </Link>
               </motion.div>
 
@@ -248,7 +251,7 @@ export default function RegisterPage() {
                     <div className="w-full border-t border-white/5" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-gray-900 text-purple-200/70">Or continue with</span>
+                    <span className="px-2 bg-gray-900 text-purple-200/70">{t('auth.divider')}</span>
                   </div>
                 </div>
 
