@@ -127,9 +127,10 @@ export default function MatchesPage() {
         alert("🏆 VICTORY! Your winnings have been added to your wallet.");
       }
     },
-    onError: (err) => {
+    onError: (err: any) => {
       console.error("Failed to complete match", err);
-      alert("Failed to claim victory. Ensure the match is in progress.");
+      const errorMsg = err.message || "Ensure the match is in progress.";
+      alert(`Failed to claim victory: ${errorMsg}`);
     }
   });
 
