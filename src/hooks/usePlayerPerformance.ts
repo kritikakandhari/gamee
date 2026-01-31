@@ -22,8 +22,8 @@ export function usePlayerPerformance(playerId: string | undefined, opponentId: s
                 // 1. Fetch recent matches for form & streak
                 const { data: matches } = await supabase
                     .from('matches')
-                    .select('winner_id, player1_id, player2_id')
-                    .or(`player1_id.eq.${playerId},player2_id.eq.${playerId}`)
+                    .select('winner_id, created_by, accepted_by')
+                    .or(`created_by.eq.${playerId},accepted_by.eq.${playerId}`)
                     .eq('status', 'COMPLETED')
                     .order('completed_at', { ascending: false })
                     .limit(20);
