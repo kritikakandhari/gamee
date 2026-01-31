@@ -40,7 +40,8 @@ create or replace function public.create_match_with_wallet(
   p_platform text default 'PC',
   p_is_private boolean default false,
   p_rules text default null,
-  p_spectator_chat_enabled boolean default true
+  p_spectator_chat_enabled boolean default true,
+  p_twitch_url text default null
 )
 returns json
 language plpgsql security definer as $$
@@ -64,11 +65,11 @@ begin
   -- 4. Create Match
   insert into matches (
     created_by, match_type, stake_cents, total_pot_cents, 
-    best_of, status, platform, is_private, room_code, rules, spectator_chat_enabled
+    best_of, status, platform, is_private, room_code, rules, spectator_chat_enabled, twitch_url
   )
   values (
     auth.uid(), p_match_type, p_stake_cents, p_stake_cents, 
-    p_best_of, 'CREATED', p_platform, p_is_private, v_room_code, p_rules, p_spectator_chat_enabled
+    p_best_of, 'CREATED', p_platform, p_is_private, v_room_code, p_rules, p_spectator_chat_enabled, p_twitch_url
   )
   returning id into v_match_id;
 

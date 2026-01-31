@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { ShieldAlert, CheckCircle, Ban, MessageSquare, Clock } from 'lucide-react';
+import { ShieldAlert, CheckCircle, Ban, MessageSquare, Clock, Brain } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function AdminDashboard() {
@@ -63,6 +63,9 @@ export default function AdminDashboard() {
                         </TabsTrigger>
                         <TabsTrigger value="tickets" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">
                             <MessageSquare className="h-4 w-4 mr-2" /> Support Tickets
+                        </TabsTrigger>
+                        <TabsTrigger value="analysis" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
+                            <Brain className="h-4 w-4 mr-2" /> App Analysis
                         </TabsTrigger>
                     </TabsList>
 
@@ -212,6 +215,94 @@ export default function AdminDashboard() {
                                     </Card>
                                 ))
                             )}
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="analysis" className="mt-6 space-y-6">
+                        {/* Financial Summary */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <Card className="bg-white/5 border-white/10">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-xs font-black text-gray-500 uppercase tracking-widest">Gross Volume</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-black text-white">$45,280.00</div>
+                                    <p className="text-[10px] text-green-400 mt-1">+12% from last week</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-white/5 border-white/10">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-xs font-black text-gray-500 uppercase tracking-widest">Platform Fees (5%)</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-black text-secondary">$2,264.00</div>
+                                    <p className="text-[10px] text-gray-500 mt-1">Net Revenue (Est.)</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-white/5 border-white/10">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-xs font-black text-gray-500 uppercase tracking-widest">Active Disputes</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-black text-amber-500">8</div>
+                                    <p className="text-[10px] text-gray-500 mt-1">0.4% Match Conflict Rate</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* AI Support Intelligence */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <Card className="bg-gray-900 border-white/10 overflow-hidden relative group">
+                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                    <Brain className="h-16 w-16 text-primary" />
+                                </div>
+                                <CardHeader className="bg-white/5 border-b border-white/10">
+                                    <CardTitle className="text-sm font-black text-white uppercase tracking-tight flex items-center gap-2">
+                                        <Brain className="h-4 w-4 text-primary" /> AI Support Sentiment Analysis
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <div className="space-y-6">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-bold text-gray-400">Neutral/Positive</span>
+                                            <span className="text-xs font-black text-green-400">88%</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <div className="h-full bg-green-500 w-[88%]" />
+                                        </div>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-bold text-gray-400">Common Issues (AI Tagged)</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/20">Withdrawal Delay (42%)</Badge>
+                                            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/20">Identity Verification (28%)</Badge>
+                                            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/20">Match Recording (15%)</Badge>
+                                        </div>
+
+                                        <p className="text-[10px] text-gray-500 italic">
+                                            "AI Suggestion: Automated ID verification pipeline is currently the primary friction point for new high-stakes users."
+                                        </p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="bg-gray-900 border-white/10">
+                                <CardHeader className="bg-white/5 border-b border-white/10">
+                                    <CardTitle className="text-sm font-black text-white uppercase tracking-tight">Financial Flow Chart</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <div className="h-48 flex items-end gap-3 px-4">
+                                        {[20, 45, 30, 80, 55, 90, 75, 40, 60, 85].map((h, i) => (
+                                            <div key={i} className="flex-1 bg-secondary/20 hover:bg-secondary/40 transition-all rounded-t-sm" style={{ height: `${h}%` }} />
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-between mt-4 text-[10px] text-gray-600 font-black tracking-widest uppercase">
+                                        <span>Jan 20</span>
+                                        <span>Today</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </TabsContent>
                 </Tabs>

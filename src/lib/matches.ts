@@ -17,7 +17,10 @@ export type Match = {
     room_code: string | null;
     rules: string | null;
     spectator_chat_enabled: boolean;
+    twitch_url?: string;
+    player2_id?: string;
     profiles?: {
+        id?: string;
         username: string;
         reputation?: number;
     };
@@ -79,6 +82,7 @@ export const matchesApi = {
         is_private?: boolean;
         rules?: string;
         spectator_chat_enabled?: boolean;
+        twitch_url?: string;
     }) => {
         const { data, error } = await supabase
             .rpc('create_match_with_wallet', {
@@ -88,7 +92,8 @@ export const matchesApi = {
                 p_platform: params.platform || 'PC',
                 p_is_private: params.is_private || false,
                 p_rules: params.rules || '',
-                p_spectator_chat_enabled: params.spectator_chat_enabled ?? true
+                p_spectator_chat_enabled: params.spectator_chat_enabled ?? true,
+                p_twitch_url: params.twitch_url || null
             });
 
         if (error) throw error;

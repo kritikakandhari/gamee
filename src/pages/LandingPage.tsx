@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '@/components/layout/Navbar';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { EntryOverlay } from '@/components/landing/EntryOverlay';
 
 // Color constants
 // Color constants
@@ -120,6 +121,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-secondary/20 text-white overflow-x-hidden">
+      <EntryOverlay />
       {/* Animated Background */}
       <div className="fixed inset-0 -z-10 bg-gray-900">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-secondary/20 via-transparent to-transparent"></div>

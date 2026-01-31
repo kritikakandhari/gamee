@@ -47,6 +47,8 @@ export default function MatchesPage() {
   const [isPrivate, setIsPrivate] = useState(false);
   const [rules, setRules] = useState('');
   const [spectatorChatEnabled, setSpectatorChatEnabled] = useState(true);
+  const [twitchStreamEnabled, setTwitchStreamEnabled] = useState(false);
+  const [twitchChannel, setTwitchChannel] = useState('');
 
   // Join by room code mutation
   const joinByCodeMutation = useMutation({
@@ -140,7 +142,8 @@ export default function MatchesPage() {
       platform,
       is_private: isPrivate,
       rules,
-      spectator_chat_enabled: spectatorChatEnabled
+      spectator_chat_enabled: spectatorChatEnabled,
+      twitch_url: twitchStreamEnabled ? twitchChannel : undefined
     } as any);
   };
 
@@ -334,6 +337,34 @@ export default function MatchesPage() {
                     className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                   />
                 </div>
+
+                <div className="flex items-center justify-between py-2">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">Broadcast to Twitch</Label>
+                    <p className="text-[10px] text-gray-500">Display your live stream in the match lobby</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={twitchStreamEnabled}
+                    onChange={(e) => setTwitchStreamEnabled(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                </div>
+
+                {twitchStreamEnabled && (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                    <Label>Twitch Channel Name</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-gray-500 text-sm">twitch.tv/</span>
+                      <Input
+                        placeholder="username"
+                        value={twitchChannel}
+                        onChange={(e) => setTwitchChannel(e.target.value)}
+                        className="pl-20 bg-white/5 border-white/20 text-white"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <Button
                   onClick={handleCreateMatch}

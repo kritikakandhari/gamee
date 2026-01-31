@@ -46,7 +46,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'discord') => {
+  const handleSocialLogin = async (provider: 'google' | 'discord' | 'twitch') => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -214,7 +214,7 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <Button
                     variant="outline"
                     className="bg-white hover:bg-gray-50 text-gray-900 hover:text-gray-900 border-none transition-transform hover:scale-105 flex items-center justify-center gap-2"
@@ -244,6 +244,18 @@ export default function LoginPage() {
 
                   <Button
                     variant="outline"
+                    className="bg-[#9146FF] hover:bg-[#772ce8] text-white border-none transition-transform hover:scale-105 flex items-center justify-center gap-2"
+                    type="button"
+                    onClick={() => handleSocialLogin('twitch')}
+                  >
+                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h2.995l5.571-5.571V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V2.143h13.714z" />
+                    </svg>
+                    <span className="font-semibold text-xs sm:text-sm">Twitch</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
                     className="bg-[#5865F2] hover:bg-[#4752C4] text-white border-none transition-transform hover:scale-105 flex items-center justify-center gap-2"
                     type="button"
                     onClick={() => handleSocialLogin('discord')}
@@ -253,7 +265,6 @@ export default function LoginPage() {
                     </svg>
                     <span className="font-semibold text-xs sm:text-sm">Discord</span>
                   </Button>
-
                 </div>
               </motion.div>
             </div>

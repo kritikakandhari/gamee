@@ -274,6 +274,22 @@ export function Navbar() {
                                     <span>{t('nav.profile')}</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="bg-white/5" />
+                                <DropdownMenuLabel className="text-[10px] text-gray-500 font-black uppercase tracking-widest px-2 py-1">Quick Settings</DropdownMenuLabel>
+                                <div className="px-2 py-2 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] text-gray-300 font-bold uppercase">Spectator Chat</span>
+                                        <div className="h-4 w-8 bg-purple-600 rounded-full cursor-pointer relative"><div className="absolute right-1 top-1 h-2 w-2 bg-white rounded-full" /></div>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] text-gray-300 font-bold uppercase">Win Prob Estimator</span>
+                                        <div className="h-4 w-8 bg-purple-600 rounded-full cursor-pointer relative"><div className="absolute right-1 top-1 h-2 w-2 bg-white rounded-full" /></div>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] text-gray-300 font-bold uppercase">Match Borders</span>
+                                        <div className="h-4 w-8 bg-white/10 rounded-full cursor-pointer relative"><div className="absolute left-1 top-1 h-2 w-2 bg-gray-500 rounded-full" /></div>
+                                    </div>
+                                </div>
+                                <DropdownMenuSeparator className="bg-white/5" />
                                 <DropdownMenuItem
                                     onClick={() => signOut()}
                                     className="hover:bg-red-500/10 text-red-400 cursor-pointer flex items-center gap-2"
