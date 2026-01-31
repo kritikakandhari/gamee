@@ -111,7 +111,7 @@ export default function MatchDetailsPage() {
             </div>
 
             {/* Twitch & Gameplay Area */}
-            {(match as any).twitch_url && (
+            {(match as any).twitch_url ? (
                 <div className="aspect-video w-full bg-black rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 relative group">
                     <iframe
                         src={`https://player.twitch.tv/?channel=${(match as any).twitch_url}&parent=${window.location.hostname}`}
@@ -122,6 +122,16 @@ export default function MatchDetailsPage() {
                         <Badge className="bg-red-600 text-white animate-pulse border-none">LIVE</Badge>
                     </div>
                 </div>
+            ) : (
+                <div className="aspect-video w-full bg-white/5 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-4 group hover:border-primary/30 transition-colors">
+                    <div className="h-16 w-16 rounded-full bg-purple-600/10 flex items-center justify-center">
+                        <svg className="h-8 w-8 text-purple-500/50" fill="currentColor" viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h2.995l5.571-5.571V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V2.143h13.714z" /></svg>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-sm font-bold text-gray-400">No Stream Active</p>
+                        <p className="text-[10px] text-gray-500 uppercase tracking-widest">Connect Twitch during match creation to broadcast here</p>
+                    </div>
+                </div>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -129,33 +139,40 @@ export default function MatchDetailsPage() {
                 <div className="lg:col-span-1 space-y-8">
 
                     {/* Player Performance Stats */}
-                    {myStats && (
-                        <Card className="bg-gray-900 border-white/10">
-                            <CardHeader className="bg-white/5 border-b border-white/10 py-3">
-                                <CardTitle className="text-xs text-gray-400 uppercase tracking-widest font-black flex items-center gap-2">
-                                    <Activity className="h-3 w-3 text-green-400" /> Your Performance
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-4 grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-[10px] text-gray-500 uppercase">Win Rate (20 games)</p>
-                                    <p className="text-xl font-black text-white">{myStats.winRate}%</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-500 uppercase">Current Streak</p>
-                                    <p className="text-xl font-black text-secondary">{myStats.currentStreak} W</p>
-                                </div>
-                                <div className="col-span-2">
-                                    <p className="text-[10px] text-gray-500 uppercase mb-1">Recent Form</p>
-                                    <div className="flex gap-1">
-                                        {myStats.recentForm.map((r, i) => (
-                                            <div key={i} className={`h-1.5 flex-1 rounded-full ${r === 'W' ? 'bg-green-500' : 'bg-red-500'} opacity-80`} />
-                                        ))}
+                    <Card className="bg-gray-900 border-white/10 group">
+                        <CardHeader className="bg-white/5 border-b border-white/10 py-3">
+                            <CardTitle className="text-xs text-gray-400 uppercase tracking-widest font-black flex items-center gap-2">
+                                <Activity className="h-3 w-3 text-green-400" /> Your Performance
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                            {myStats && myStats.recentForm.length > 0 ? (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase">Win Rate (20 games)</p>
+                                        <p className="text-xl font-black text-white">{myStats.winRate}%</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase">Current Streak</p>
+                                        <p className="text-xl font-black text-secondary">{myStats.currentStreak} W</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="text-[10px] text-gray-500 uppercase mb-1">Recent Form</p>
+                                        <div className="flex gap-1">
+                                            {myStats.recentForm.map((r, i) => (
+                                                <div key={i} className={`h-1.5 flex-1 rounded-full ${r === 'W' ? 'bg-green-500' : 'bg-red-500'} opacity-80`} />
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                            ) : (
+                                <div className="py-4 text-center space-y-2">
+                                    <p className="text-[10px] text-gray-500 uppercase font-bold">No Match History Yet</p>
+                                    <p className="text-[9px] text-gray-600">Complete matches to unlock performance analytics & AI insights.</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
                     <Card className="bg-gray-900 border-white/10 overflow-hidden">
                         <CardHeader className="bg-white/5 border-b border-white/10 py-4">

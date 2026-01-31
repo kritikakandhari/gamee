@@ -188,7 +188,7 @@ export default function MatchesPage() {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-white">{t('app.matches.title')}</h1>
-          <p className="text-sm text-gray-400">{t('app.matches.subtitle')}</p>
+          <p className="text-sm text-gray-400">Join lobbies, link Twitch streams, and report scores for instant payouts.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" className="gap-2" onClick={() => window.open('https://docs.google.com/document/d/1XpYy_0N0X0Y_0X0Y0X0Y0X0Y0X0Y0X0Y0X0Y0X0Y0/edit', '_blank')}>
