@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
@@ -21,9 +21,6 @@ export default function ResetPasswordPage() {
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (!session) {
                 // If no session, the link might be invalid or expired
-                // But for "updateUser" to work to set a new password, we must be authenticated
-                // The reset link from Supabase does this automatically.
-                // If here without session, maybe redirect to login?
             }
         });
     }, []);

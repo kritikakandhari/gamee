@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabaseClient'
 
 type AuthContextValue = {
-  session: any
-  user: any
+  session: Session | null
+  user: User | null
   isAdmin: boolean
   isLoading: boolean
   signOut: () => Promise<void>
@@ -12,12 +13,12 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<any>(null)
-  const [user, setUser] = useState<any>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
 
-  const checkAdmin = (user: any) => {
+  const checkAdmin = (user: User | null) => {
     // For demo purposes, we allow a specific email or metadata role
     // In production, this should be strictly strictly via RLS/Claims
     const isDevAdmin = user?.email === 'admin@fgcmm.com' || user?.email?.includes('admin');

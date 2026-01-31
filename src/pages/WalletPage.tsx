@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/auth/AuthProvider';
-import { walletApi, type Wallet, type Transaction } from '@/lib/wallet';
+import { walletApi, type Transaction } from '@/lib/wallet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History } from 'lucide-react';
@@ -15,7 +15,7 @@ import { useWallet } from '@/hooks/useWallet';
 export default function WalletPage() {
     const { t } = useLanguage();
     const { user } = useAuth();
-    const { wallet, balance, formattedBalance, loading: walletLoading, refresh } = useWallet();
+    const { wallet, formattedBalance, loading: walletLoading } = useWallet();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
 
