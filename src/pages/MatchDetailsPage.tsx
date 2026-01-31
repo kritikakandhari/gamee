@@ -46,7 +46,7 @@ export default function MatchDetailsPage() {
     });
 
     // Fetch Performance Stats (Self vs Opponent)
-    const opponentId = match?.profiles?.id || (match as any).player2_id; // Check schema for actual opponent logic
+    const opponentId = match ? (match.profiles?.id || (match as any).player2_id) : undefined; // Check schema for actual opponent logic
     const { stats: myStats } = usePlayerPerformance(user?.id, opponentId);
 
     // ... (Existing Timer Logic) -> Keeping it visually simple here, but logically present
