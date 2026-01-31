@@ -29,9 +29,9 @@ export default function MatchDetailsPage() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [copied, /* setCopied */] = useState(false);
-    // const [rejoinTimer, setRejoinTimer] = useState<number | null>(null);
-    // const [isDisconnected, setIsDisconnected] = useState(false);
+    const [copied] = useState(false);
+    const [rejoinTimer, setRejoinTimer] = useState<number | null>(null);
+    const [isDisconnected, setIsDisconnected] = useState(false);
 
     // Score Reporting State
     const [isScoreDialogOpen, setIsScoreDialogOpen] = useState(false);
@@ -43,18 +43,31 @@ export default function MatchDetailsPage() {
         queryKey: ['match', matchId],
         queryFn: () => matchesApi.getMatchById(matchId!),
         enabled: !!matchId,
+        refetchInterval: 5000, // Poll for results
     });
 
     // Fetch Performance Stats (Self vs Opponent)
-    const opponentId = match ? (match.profiles?.id || (match as any).player2_id) : undefined; // Check schema for actual opponent logic
-    const { stats: myStats } = usePlayerPerformance(user?.id, opponentId);
+    const opponentId = match ? (match.created_by === user?.id ? match.accepted_by : match.created_by) : undefined;
+    const { stats: myStats } = usePlayerPerformance(user?.id, opponentId || undefined);
 
-    // ... (Existing Timer Logic) -> Keeping it visually simple here, but logically present
-    // useEffect(() => {
-    //     // ... (Rejoin timer implementation) ...
-    // }, [isDisconnected, rejoinTimer]);
+    // Grace Period Logic: Simulate player leaving/disconnecting
+    useEffect(() => {
+        let interval: any;
+        if (isDisconnected && rejoinTimer && rejoinTimer > 0) {
+            interval = setInterval(() => {
+                setRejoinTimer(prev => (prev !== null && prev > 0) ? prev - 1 : 0);
+            }, 1000);
+        } else if (rejoinTimer === 0) {
+            alert("Grace period expired. Match forfeited.");
+            navigate('/app/matches');
+        }
+        return () => clearInterval(interval);
+    }, [isDisconnected, rejoinTimer, navigate]);
 
-    const handleCopyCode = () => { /* ... */ };
+    const handleCopyCode = () => {
+        navigator.clipboard.writeText(match?.room_code || '');
+        alert("Room code copied!");
+    };
 
     const startMatchMutation = useMutation({
         mutationFn: () => matchesApi.startMatch(matchId!),
@@ -81,6 +94,20 @@ export default function MatchDetailsPage() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
+            {/* Grace Period Notification */}
+            {isDisconnected && rejoinTimer !== null && (
+                <div className="bg-red-500/20 border border-red-500/50 p-4 rounded-xl flex items-center justify-between animate-pulse">
+                    <div className="flex items-center gap-3">
+                        <Activity className="h-5 w-5 text-red-500" />
+                        <div>
+                            <p className="text-sm font-bold text-white uppercase">Connection Lost</p>
+                            <p className="text-xs text-red-200">Rejoin within {Math.floor(rejoinTimer / 60)}:{(rejoinTimer % 60).toString().padStart(2, '0')} or forfeit funds.</p>
+                        </div>
+                    </div>
+                    <Button onClick={() => { setIsDisconnected(false); setRejoinTimer(null); }} size="sm" className="bg-white text-dark hover:bg-white/90 font-bold">REJOIN</Button>
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 {/* ... (Existing Header UI) ... */}
