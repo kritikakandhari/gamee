@@ -4,24 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { ShieldAlert, CheckCircle, Ban, MessageSquare, Clock, Brain } from 'lucide-react';
+import { ShieldAlert, CheckCircle, Ban, MessageSquare, Clock, Brain, Landmark } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function AdminDashboard() {
     const [logs, setLogs] = useState<IntegrityLog[]>([]);
     const [tickets, setTickets] = useState<any[]>([]);
+    const [withdrawals, setWithdrawals] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('integrity');
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [logsData, ticketsData] = await Promise.all([
+            const [logsData, ticketsData, withdrawalsData] = await Promise.all([
                 adminApi.getIntegrityLogs(),
-                adminApi.getSupportTickets()
+                adminApi.getSupportTickets(),
+                adminApi.getWithdrawalRequests()
             ]);
             setLogs(logsData || []);
             setTickets(ticketsData || []);
+            setWithdrawals(withdrawalsData || []);
         } catch (err) {
             console.error(err);
         } finally {
@@ -42,6 +45,12 @@ export default function AdminDashboard() {
 
     const handleResolveTicket = async (id: string, status: string) => {
         await adminApi.resolveTicket(id, status);
+        fetchData();
+    };
+
+    const handleResolveWithdrawal = async (id: string, status: 'PAID' | 'REJECTED') => {
+        const notes = prompt("Enter admin notes (optional):") || '';
+        await adminApi.resolveWithdrawal(id, status, notes);
         fetchData();
     };
 
@@ -66,6 +75,9 @@ export default function AdminDashboard() {
                         </TabsTrigger>
                         <TabsTrigger value="analysis" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
                             <Brain className="h-4 w-4 mr-2" /> App Analysis
+                        </TabsTrigger>
+                        <TabsTrigger value="withdrawals" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400">
+                            <Landmark className="h-4 w-4 mr-2" /> Payout Requests
                         </TabsTrigger>
                     </TabsList>
 
@@ -303,6 +315,50 @@ export default function AdminDashboard() {
                                     </div>
                                 </CardContent>
                             </Card>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="withdrawals" className="mt-6">
+                        <div className="grid gap-4">
+                            {loading ? (
+                                <div className="text-center text-gray-500">Loading withdrawals...</div>
+                            ) : withdrawals.length === 0 ? (
+                                <div className="text-center py-12 bg-white/5 rounded-lg border border-white/10">
+                                    <Landmark className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                                    <h3 className="text-xl font-medium text-white">No Payout Requests</h3>
+                                    <p className="text-gray-400">Wallet balances are stable.</p>
+                                </div>
+                            ) : (
+                                withdrawals.map((req) => (
+                                    <Card key={req.id} className="bg-white/5 border-white/10">
+                                        <CardContent className="p-6">
+                                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xl font-black text-white">${(req.amount_cents / 100).toFixed(2)}</span>
+                                                        <Badge className={req.status === 'PENDING' ? 'bg-secondary text-dark' : 'bg-white/10 text-gray-400'}>{req.status}</Badge>
+                                                    </div>
+                                                    <p className="text-xs text-gray-400">
+                                                        Requested by <b className="text-white">{req.profiles?.username}</b> via <b className="text-secondary">{req.method}</b>
+                                                    </p>
+                                                    <div className="mt-2 p-2 bg-black/40 rounded border border-white/5 text-[10px] text-cyan-400 font-mono">
+                                                        {JSON.stringify(req.account_details)}
+                                                    </div>
+                                                </div>
+                                                {req.status === 'PENDING' && (
+                                                    <div className="flex gap-2">
+                                                        <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => handleResolveWithdrawal(req.id, 'PAID')}>
+                                                            Mark as Paid
+                                                        </Button>
+                                                        <Button size="sm" variant="destructive" onClick={() => handleResolveWithdrawal(req.id, 'REJECTED')}>
+                                                            Reject
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            )}
                         </div>
                     </TabsContent>
                 </Tabs>

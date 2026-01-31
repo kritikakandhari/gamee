@@ -8,23 +8,21 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { PaymentProcessors } from '@/components/payments/PaymentProcessors';
+import { WithdrawDialog } from '@/components/payments/WithdrawDialog';
+import { useWallet } from '@/hooks/useWallet';
 
 
 export default function WalletPage() {
     const { t } = useLanguage();
     const { user } = useAuth();
-    const [wallet, setWallet] = useState<Wallet | null>(null);
+    const { wallet, balance, formattedBalance, loading: walletLoading, refresh } = useWallet();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [walletData, txData] = await Promise.all([
-                walletApi.getWallet(),
-                walletApi.getTransactions()
-            ]);
-            setWallet(walletData);
+            const txData = await walletApi.getTransactions();
             setTransactions(txData || []);
         } catch (err) {
             console.error(err);
@@ -34,7 +32,7 @@ export default function WalletPage() {
     };
 
     useEffect(() => {
-        if (user) fetchData();
+        fetchData();
     }, [user]);
 
     const [depositAmount, setDepositAmount] = useState<string>('25');
@@ -84,14 +82,18 @@ export default function WalletPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-5xl font-bold text-white tracking-tight">
-                                {loading ? '...' : formatCurrency(wallet?.balance_cents || 0)}
+                                {walletLoading ? '...' : formattedBalance}
                             </div>
                             <p className="text-sm text-gray-400 mt-2">{t('app.wallet.available')}</p>
 
-                            <div className="mt-8 p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                            <div className="mt-8 p-4 rounded-lg bg-purple-500/10 border border-purple-500/20 space-y-4">
                                 <p className="text-xs text-purple-200/70 leading-relaxed">
-                                    <span className="font-bold text-purple-300">Monetization Note:</span> A 5% service fee is applied to match prizes to support the platform and anti-cheat infrastructure.
+                                    <span className="font-bold text-purple-300">Monetization Note:</span> A 5% service fee is applied to match prizes to support the platform.
                                 </p>
+                                <WithdrawDialog
+                                    maxAmountCents={wallet?.balance_cents || 0}
+                                    onSuccess={fetchData}
+                                />
                             </div>
                         </CardContent>
                     </Card>

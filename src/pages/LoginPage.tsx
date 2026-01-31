@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
@@ -20,10 +21,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!captchaToken) {
+      setError('Please verify that you are not a bot.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -131,6 +140,20 @@ export default function LoginPage() {
                     className="bg-white/5 border-white/20 text-white placeholder:text-purple-200/50 focus:border-pink-400/50 focus-visible:ring-pink-500/50"
                     required
                     minLength={6}
+                  />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.45 }}
+                  className="flex justify-center py-2"
+                >
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={(import.meta as any).env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
+                    onChange={(token) => setCaptchaToken(token)}
+                    theme="dark"
                   />
                 </motion.div>
 

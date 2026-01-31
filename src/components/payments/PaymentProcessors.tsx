@@ -1,5 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { Elements } from '@stripe/react-stripe-js';
+import { getStripe } from '@/lib/stripe';
+import { StripeCardForm } from './StripeCardForm';
 
 interface PaymentProcessorsProps {
     amount: number; // in cents
@@ -52,29 +55,17 @@ export const PaymentProcessors: React.FC<PaymentProcessorsProps> = ({
     }
 
     if (method === 'card') {
+        const stripePromise = getStripe();
+
         return (
-            <div className="w-full space-y-4 p-4 bg-white/5 rounded-lg border border-white/10">
-                {/* 
-                    Note: Stripe Elements would usually be initialized here.
-                    For the MVP, we are setting up the structure for Stripe.js
-                */}
-                <div id="card-element" className="p-3 bg-white/10 rounded-md border border-white/20 min-h-[40px]">
-                    <span className="text-gray-500 text-sm">Visa / Mastercard Input (Stripe Elements)</span>
-                </div>
-
-                <Button
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold"
-                    onClick={() => {
-                        // Simulated Stripe Success for testing the "Real" flow
-                        onSuccess({ id: 'tok_visa', amount });
-                    }}
-                >
-                    Pay with Card via Stripe
-                </Button>
-
-                <p className="text-[10px] text-gray-500 text-center">
-                    Powered by Stripe. PCI-DSS compliant.
-                </p>
+            <div className="w-full p-4 bg-white/5 rounded-lg border border-white/10">
+                <Elements stripe={stripePromise}>
+                    <StripeCardForm
+                        amount={amount}
+                        onSuccess={onSuccess}
+                        onError={onError}
+                    />
+                </Elements>
             </div>
         );
     }

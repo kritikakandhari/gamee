@@ -47,5 +47,18 @@ export const walletApi = {
 
         if (error) throw error;
         return data;
+    },
+
+    // Request Real Withdrawal
+    requestWithdrawal: async (amountCents: number, method: string, details: any) => {
+        const { data, error } = await supabase
+            .rpc('request_withdrawal', {
+                p_amount_cents: amountCents,
+                p_method: method,
+                p_account_details: details
+            });
+
+        if (error) throw error;
+        return data;
     }
 };

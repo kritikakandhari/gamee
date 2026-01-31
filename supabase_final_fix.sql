@@ -39,6 +39,13 @@ CREATE TABLE IF NOT EXISTS public.transactions (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Ensure Match columns exist
+ALTER TABLE public.matches ADD COLUMN IF NOT EXISTS completed_at timestamp with time zone;
+ALTER TABLE public.matches ADD COLUMN IF NOT EXISTS platform text DEFAULT 'PC';
+ALTER TABLE public.matches ADD COLUMN IF NOT EXISTS rules text;
+ALTER TABLE public.matches ADD COLUMN IF NOT EXISTS spectator_chat_enabled boolean DEFAULT true;
+ALTER TABLE public.matches ADD COLUMN IF NOT EXISTS twitch_url text;
+
 -- Match Stats (CRITICAL: Often missing, causes "Claim Victory" to fail)
 CREATE TABLE IF NOT EXISTS public.match_stats (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,

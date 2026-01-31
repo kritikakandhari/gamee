@@ -1,15 +1,15 @@
-// import { useState, useEffect } from 'react'
-import { /* useState, useEffect */ } from 'react'
-import { Activity, ShieldCheck, Trophy, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Activity, ShieldCheck, Trophy, CheckCircle, Smartphone, ShieldAlert, Key, Fingerprint, Lock, Target, Brain } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useAuth } from '@/auth/AuthProvider'
 import { supabase } from '@/lib/supabaseClient'
+import { cn } from '@/lib/utils'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-/*
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
+import { Label } from "@/components/ui/label"
 
 import {
   Select,
@@ -28,124 +28,92 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-*/
 
 export default function ProfilePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
 
-  /*
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEnrollDialogOpen, setIsEnrollDialogOpen] = useState(false);
+  const [mfaData, setMfaData] = useState<{ id: string, qr_code: string, secret: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaError, setMfaError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [mfaFactors, setMfaFactors] = useState<any[]>([]);
 
-  // Profile Edit State
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [dob, setDob] = useState('');
+  const fetchMfaFactors = async () => {
+    try {
+      const { data, error } = await supabase.auth.mfa.listFactors();
+      if (error) throw error;
+      setMfaFactors(data.all || []);
+    } catch (err) {
+      console.error('Error fetching MFA factors:', err);
+    }
+  };
 
-  // Connect Game State
-  const [selectedGame, setSelectedGame] = useState('');
-  const [gameId, setGameId] = useState('');
-  const [platform, setPlatform] = useState('');
-
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-
-  // Initialize form from user data
   useEffect(() => {
-    if (user) {
-      setDisplayName(
-        user.user_metadata?.display_name ||
-        user.user_metadata?.full_name ||
-        user.user_metadata?.username ||
-        ''
-      );
-      setEmail(user.email || '');
-      setPhone(user.user_metadata?.phone || '');
-      setDob(user.user_metadata?.dob || '');
-    }
-  }, [user, isDialogOpen]);
+    if (user) fetchMfaFactors();
+  }, [user]);
 
-  const handleUpdateProfile = async () => {
+  const handleEnrollMFA = async () => {
     try {
-      setIsLoading(true);
-      setMessage(null);
-
-      const payload: any = {
-        data: {
-          display_name: displayName,
-          phone,
-          dob
-        }
-      };
-
-      // Only update email if changed, as it triggers a confirmation flow
-      if (email !== user.email) {
-        payload.email = email;
-      }
-
-      const { error } = await supabase.auth.updateUser(payload);
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: t('app.profile.editDialog.success') });
-
-      // Close dialog after a short delay on success
-      setTimeout(() => {
-        setIsDialogOpen(false);
-        setMessage(null);
-      }, 1500);
-
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      setMessage({ type: 'error', text: t('app.profile.editDialog.error') });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleConnectGame = async () => {
-    if (!selectedGame || !gameId || !platform) return;
-
-    try {
-      setIsLoading(true);
-      setMessage(null);
-
-      const currentGames = user?.user_metadata?.games || [];
-      const newGame = {
-        game: selectedGame,
-        gameId,
-        platform,
-        connectedAt: new Date().toISOString()
-      };
-
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          games: [...currentGames, newGame]
-        }
+      setMfaError(null);
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        issuer: 'FGC Money Match',
+        friendlyName: user?.email || 'FGC Player'
       });
-
       if (error) throw error;
-
-      setMessage({ type: 'success', text: t('app.profile.connectDialog.success') });
-
-      setTimeout(() => {
-        setIsConnectDialogOpen(false);
-        setMessage(null);
-        setSelectedGame('');
-        setGameId('');
-        setPlatform('');
-      }, 1500);
-
-    } catch (error) {
-      console.error('Error connecting game:', error);
-      setMessage({ type: 'error', text: t('app.profile.editDialog.error') });
-    } finally {
-      setIsLoading(false);
+      setMfaData({
+        id: data.id,
+        qr_code: data.totp.qr_code,
+        secret: data.totp.secret
+      });
+    } catch (err) {
+      setMfaError(err instanceof Error ? err.message : 'Enrollment failed');
     }
   };
-  */
+
+  const handleVerifyEnrollment = async () => {
+    if (!mfaData || !mfaCode) return;
+    try {
+      setIsVerifying(true);
+      setMfaError(null);
+
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: mfaData.id
+      });
+      if (challengeError) throw challengeError;
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId: mfaData.id,
+        challengeId: challengeData.id,
+        code: mfaCode
+      });
+      if (verifyError) throw verifyError;
+
+      setIsEnrollDialogOpen(false);
+      setMfaData(null);
+      setMfaCode('');
+      fetchMfaFactors();
+    } catch (err) {
+      setMfaError(err instanceof Error ? err.message : 'Verification failed');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleUnenrollMFA = async (factorId: string) => {
+    try {
+      const { error } = await supabase.auth.mfa.unenroll({ factorId });
+      if (error) throw error;
+      fetchMfaFactors();
+    } catch (err) {
+      console.error('Unenrollment error:', err);
+    }
+  };
+
+  const is2FAEnabled = mfaFactors.some(f => f.status === 'verified');
+  const isPlayerVerified = user?.user_metadata?.is_verified === true;
 
   const getDisplayInitials = () => {
     const name = user?.user_metadata?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email || 'Player';
@@ -317,14 +285,24 @@ export default function ProfilePage() {
                     <p className="text-xs font-bold text-white">Two-Factor Auth (2FA)</p>
                     <p className="text-[10px] text-gray-500">Secure your funds with TOTP</p>
                   </div>
-                  <Badge className="bg-red-500/10 text-red-400 border-red-500/20 text-[9px] cursor-pointer">DISABLED</Badge>
+                  <Badge
+                    className={cn(
+                      "text-[9px] cursor-pointer",
+                      is2FAEnabled ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"
+                    )}
+                    onClick={() => is2FAEnabled ? handleUnenrollMFA(mfaFactors[0].id) : setIsEnrollDialogOpen(true)}
+                  >
+                    {is2FAEnabled ? 'ENABLED' : 'DISABLED'}
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
                   <div>
-                    <p className="text-xs font-bold text-white">Email Verification</p>
-                    <p className="text-[10px] text-green-400">Verified on 2024-01-15</p>
+                    <p className="text-xs font-bold text-white">Identity Status</p>
+                    <p className={cn("text-[10px]", isPlayerVerified ? "text-green-400" : "text-gray-500")}>
+                      {isPlayerVerified ? 'Verified Profile' : 'Not Verified (Manual Review Required)'}
+                    </p>
                   </div>
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  {isPlayerVerified ? <CheckCircle className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-gray-500" />}
                 </div>
                 <Button variant="ghost" size="sm" className="w-full text-[10px] uppercase font-black text-gray-400 border border-white/5">Change Password</Button>
 
@@ -402,7 +380,60 @@ export default function ProfilePage() {
           </Card>
         </div>
       </div>
-    </div >
+    </div>
+
+    {/* 2FA Enrollment Dialog */ }
+  <Dialog open={isEnrollDialogOpen} onOpenChange={setIsEnrollDialogOpen}>
+    <DialogContent className="bg-gray-900 border-white/10 text-white max-w-sm">
+      <DialogHeader>
+        <DialogTitle className="flex items-center gap-2">
+          <Lock className="h-5 w-5 text-secondary" />
+          Setup 2FA Authentication
+        </DialogTitle>
+      </DialogHeader>
+
+      <div className="space-y-6 pt-4">
+        {!mfaData ? (
+          <div className="text-center space-y-4">
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Protect your real money matches by adding an extra layer of security. We use TOTP (Google Authenticator, Authy).
+            </p>
+            <Button onClick={handleEnrollMFA} className="bg-secondary text-black font-bold h-10 px-8">
+              Generate QR Code
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+            <div className="flex justify-center p-4 bg-white rounded-xl">
+              <QRCodeSVG value={mfaData.qr_code} size={180} />
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs text-gray-400 uppercase font-black">Verification Code</Label>
+                <Input
+                  placeholder="000000"
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="bg-white/5 border-white/20 text-center text-xl font-mono tracking-widest h-12"
+                />
+              </div>
+              {mfaError && <p className="text-xs text-red-400 text-center">{mfaError}</p>}
+              <Button
+                onClick={handleVerifyEnrollment}
+                className="w-full bg-secondary text-black font-black"
+                disabled={mfaCode.length < 6 || isVerifying}
+              >
+                {isVerifying ? 'Verifying...' : 'Enable 2FA'}
+              </Button>
+            </div>
+            <p className="text-[10px] text-gray-500 text-center italic">
+              Scan the code with your authenticator app and enter the 6-digit PIN.
+            </p>
+          </div>
+        )}
+      </div>
+    </DialogContent>
+  </Dialog>
   )
 }
 

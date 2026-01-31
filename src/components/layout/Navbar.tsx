@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useWallet } from '@/hooks/useWallet';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -119,6 +120,7 @@ function NavLinksAdminExtension({ isMobile, onNavigate }: { isMobile: boolean, o
 export function Navbar() {
     const { user, signOut } = useAuthContext();
     const { language, setLanguage, availableLanguages, t } = useLanguage();
+    const { formattedBalance } = useWallet();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -180,7 +182,7 @@ export function Navbar() {
                             onClick={() => navigate('/app/wallet')}
                         >
                             <Wallet className="h-3.5 w-3.5 text-secondary" />
-                            <span className="text-sm font-medium text-secondary">$125.50</span>
+                            <span className="text-sm font-medium text-secondary">{formattedBalance}</span>
                         </div>
                     )}
 
@@ -350,7 +352,7 @@ export function Navbar() {
                             }}
                         >
                             <Wallet className="h-4 w-4" />
-                            <span>Wallet: $125.50</span>
+                            <span>Wallet: {formattedBalance}</span>
                         </div>
                     )}
 
