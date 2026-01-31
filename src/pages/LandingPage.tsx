@@ -198,7 +198,7 @@ export default function LandingPage() {
                     }
                   }}
                 >
-                  <span style={{ color: COLORS.primary }}>MONEY </span>
+                  <span style={{ color: COLORS.primary }}>FGC MONEY </span>
                   <span style={{ color: COLORS.purple }}>MATCH</span>
                 </motion.span>
               </motion.h1>
