@@ -53,7 +53,7 @@ export function usePlayerPerformance(playerId: string | undefined, opponentId: s
                 let h2h = { wins: 0, losses: 0 };
                 if (opponentId) {
                     const h2hMatches = matches.filter(m =>
-                        (m.player1_id === opponentId || m.player2_id === opponentId)
+                        (m.created_by === opponentId || m.accepted_by === opponentId)
                     );
                     const h2hWins = h2hMatches.filter(m => m.winner_id === playerId).length;
                     h2h = { wins: h2hWins, losses: h2hMatches.length - h2hWins };
