@@ -75,6 +75,7 @@ export const matchesApi = {
 
     // Create a new match (Secure with Fee)
     createMatch: async (params: {
+        game: string;
         match_type: string;
         stake_cents: number;
         best_of: number;
@@ -86,6 +87,7 @@ export const matchesApi = {
     }) => {
         const { data, error } = await supabase
             .rpc('create_match_with_wallet', {
+                p_game: params.game,
                 p_match_type: params.match_type,
                 p_stake_cents: params.stake_cents,
                 p_best_of: params.best_of,

@@ -36,6 +36,7 @@ export default function DiscoverPage() {
   // const [stakeMax, setStakeMax] = useState('');
 
   // Match form state
+  const [matchGame, setMatchGame] = useState('SF6');
   const [matchType, setMatchType] = useState('QUICK_DUEL');
   const [stakeCents, setStakeCents] = useState(0); // Default to 0 / free for now or user input
   const [bestOf, setBestOf] = useState(3);
@@ -58,7 +59,7 @@ export default function DiscoverPage() {
 
   // Create match mutation
   const createMatchMutation = useMutation({
-    mutationFn: async (data: { match_type: string; stake_cents: number; best_of: number }) => {
+    mutationFn: async (data: { game: string; match_type: string; stake_cents: number; best_of: number }) => {
       return await matchesApi.createMatch(data);
     },
     onSuccess: (data: any) => {
@@ -98,6 +99,7 @@ export default function DiscoverPage() {
   const handleCreateMatch = () => {
     if (!user) return;
     createMatchMutation.mutate({
+      game: matchGame,
       match_type: matchType,
       stake_cents: stakeCents,
       best_of: bestOf,
@@ -248,6 +250,29 @@ export default function DiscoverPage() {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
+                      <Label>Game</Label>
+                      <select
+                        value={matchGame}
+                        onChange={(e) => setMatchGame(e.target.value)}
+                        className="w-full bg-white/5 border border-white/20 rounded-md px-3 py-2 text-white"
+                      >
+                        <option value="SF6">Street Fighter 6</option>
+                        <option value="T8">Tekken 8</option>
+                        <option value="MK1">Mortal Kombat 1</option>
+                        <option value="GGS">Guilty Gear Strive</option>
+                        <option value="DBFZ">Dragon Ball FighterZ</option>
+                        <option value="GBVSR">Granblue Fantasy Versus: Rising</option>
+                        <option value="UNI2">Under Night In-Birth II</option>
+                        <option value="BBCF">BlazBlue Centralfiction</option>
+                        <option value="CVS2">Capcom vs. SNK 2</option>
+                        <option value="FFCOTW">Fatal Fury: CotW</option>
+                        <option value="KI">Killer Instinct</option>
+                        <option value="MVC2">Marvel vs. Capcom 2</option>
+                        <option value="SC6">SoulCalibur VI</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
                       <Label>Match Type</Label>
                       <select
                         value={matchType}
@@ -389,8 +414,7 @@ export default function DiscoverPage() {
                         {/* Header: Game & Status */}
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
-                            {/* Mock Game Name based on type for visual */}
-                            {match.match_type.includes('SF6') ? 'Street Fighter 6' : 'Tekken 8'}
+                            {match.game || 'FGC Match'}
                           </h3>
                           <div className="flex gap-2">
                             <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30">{t('app.discover.match.open')}</Badge>
