@@ -58,22 +58,22 @@ $$ LANGUAGE plpgsql;
 
 -- 3. DROP OLD VERSIONS TO AVOID AMBIGUITY
 -- ---------------------------------------------------------
--- We drop old signatures so PostgREST doesn't get confused by overloading.
 DROP FUNCTION IF EXISTS public.create_match_with_wallet(text, int, int);
 DROP FUNCTION IF EXISTS public.create_match_with_wallet(text, int, int, text, boolean, text, boolean);
+DROP FUNCTION IF EXISTS public.create_match_with_wallet(text, text, int, int, text, boolean, text, boolean, text);
 
--- 4. MASTER FUNCTION: CREATE MATCH WITH WALLET (8 Parameters)
+-- 4. MASTER FUNCTION: CREATE MATCH WITH WALLET (9 Parameters)
 -- ---------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.create_match_with_wallet(
-  p_game text,
-  p_match_type text,
-  p_stake_cents int,
   p_best_of int,
-  p_platform text DEFAULT 'PC',
-  p_is_private boolean DEFAULT false,
-  p_rules text DEFAULT '',
-  p_spectator_chat_enabled boolean DEFAULT true,
-  p_twitch_url text DEFAULT null
+  p_game text,
+  p_is_private boolean,
+  p_match_type text,
+  p_platform text,
+  p_rules text,
+  p_spectator_chat_enabled boolean,
+  p_stake_cents int,
+  p_twitch_url text
 )
 RETURNS json
 LANGUAGE plpgsql SECURITY DEFINER AS $$
@@ -85,7 +85,6 @@ BEGIN
   -- 1. Get Wallet
   SELECT id INTO v_wallet_id FROM wallets WHERE user_id = auth.uid();
   
-  -- Auto-create wallet if missing (safety)
   IF v_wallet_id IS NULL THEN
     INSERT INTO wallets (user_id, balance_cents) VALUES (auth.uid(), 0) RETURNING id INTO v_wallet_id;
   END IF;
@@ -99,7 +98,7 @@ BEGIN
   UPDATE wallets SET balance_cents = balance_cents - p_stake_cents WHERE id = v_wallet_id;
 
   -- 4. Generate Room Code
-  v_room_code := public.generate_room_code();
+  v_room_code := UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 6));
 
   -- 5. Create Match
   INSERT INTO matches (

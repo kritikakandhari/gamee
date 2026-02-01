@@ -89,8 +89,8 @@ export const matchesApi = {
             .rpc('create_match_with_wallet', {
                 p_game: params.game,
                 p_match_type: params.match_type,
-                p_stake_cents: params.stake_cents,
-                p_best_of: params.best_of,
+                p_stake_cents: Math.floor(params.stake_cents),
+                p_best_of: Math.floor(params.best_of),
                 p_platform: params.platform || 'PC',
                 p_is_private: params.is_private || false,
                 p_rules: params.rules || '',
